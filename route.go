@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/kr/pretty"
-	"github.com/tkanos/gonfig"
 	"googlemaps.github.io/maps"
 	"log"
 	"os"
@@ -29,7 +28,7 @@ type Configuration struct {
 //transitRoutingPreference "transit_routing_preference", "", "Specifies preferences for transit routes."
 //iterations               "iterations", 1, "Number of times to make API request."
 //trafficModel             ("traffic_model", "", "Specifies traffic prediction model when request future directions. Valid values are optimistic, best_guess, and pessimistic. Optional."
-type GoogleCustomRequest struct {
+type GoogleCustomRouteRequest struct {
 	origin                   string
 	destination              string
 	mode                     string
@@ -43,15 +42,8 @@ type GoogleCustomRequest struct {
 	trafficModel             string
 }
 
-func getSecrets() (Configuration, error) {
-	configuration := Configuration{}
-	err := gonfig.GetConf("config/config.secret.json", &configuration)
-	return configuration, err
-}
-
-func route(request GoogleCustomRequest) {
+func route(request GoogleCustomRouteRequest) {
 	configuration, _ := getSecrets()
-	fmt.Printf("\nCredentials: %s", configuration.GoogleAPIKey)
 
 	var client *maps.Client
 	var err error
@@ -103,12 +95,6 @@ func route(request GoogleCustomRequest) {
 
 	fmt.Printf("%# v", pretty.Formatter(waypoints))
 	fmt.Printf("%# v", pretty.Formatter(routes))
-}
-
-func check(err error) {
-	if err != nil {
-		log.Fatalf("fatal error: %s", err)
-	}
 }
 
 func lookupMode(mode string, r *maps.DirectionsRequest) {
