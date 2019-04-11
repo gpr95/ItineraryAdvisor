@@ -10,19 +10,19 @@ import (
 
 func main() {
 
-	request := GoogleCustomRouteRequest{
-		origin:                   "",
-		destination:              "",
-		mode:                     "",
-		departureTime:            "",
-		arrivalTime:              "",
-		waypoints:                "",
-		language:                 "PL",
-		region:                   "",
-		transitMode:              "",
-		transitRoutingPreference: "",
-		trafficModel:             "",
-	}
+	// request := GoogleCustomRouteRequest{
+	// 	origin:                   "",
+	// 	destination:              "",
+	// 	mode:                     "",
+	// 	departureTime:            "",
+	// 	arrivalTime:              "",
+	// 	waypoints:                "",
+	// 	language:                 "PL",
+	// 	region:                   "",
+	// 	transitMode:              "",
+	// 	transitRoutingPreference: "",
+	// 	trafficModel:             "",
+	// }
 	//route(request)
 
 	// requestPlaces := GoogleCustomPlacesRequest{
