@@ -7,7 +7,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/kr/pretty"
 	"googlemaps.github.io/maps"
 )
 
@@ -91,11 +90,11 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 		}
 	}
 
-	routes, waypoints, err := client.Directions(context.Background(), r)
+	routes, _, err := client.Directions(context.Background(), r)
 	check(err)
 
-	fmt.Printf("%# v", pretty.Formatter(routes))
-	fmt.Printf("%# v", pretty.Formatter(waypoints))
+	// fmt.Printf("%# v", pretty.Formatter(routes))
+	// fmt.Printf("%# v", pretty.Formatter(waypoints))
 	return routes
 
 }

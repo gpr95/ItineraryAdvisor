@@ -1,17 +1,22 @@
 import React from 'react';
 import UserInput from './UserInput.js';
+import RouteInfo from './RouteInfo.js';
+import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
 import MyMapComponent from './Map.js';
+import moment from 'moment';
 
 export default class MapContainer extends React.Component {
 
-      componentWillMount(){
-        this.setState({pathCoordinates : []});
+    componentWillMount() {
+        this.setState({ routeInfo: {} });
         this.submit = this.submit.bind(this);
-      }
+    }
 
-      componentDidMount() {
+    componentDidMount() {
         // What should happen when container is loaded?
-      }
+    }
 
     submit(data) {
         console.log(data);
@@ -19,22 +24,36 @@ export default class MapContainer extends React.Component {
             method: 'POST',
             body: data,
         })
-        .then((response) => {
-            return response.json()
-        })
-        .then(responseData => {
-            console.log(responseData);
-            // Here we set response as path
-            this.setState({ pathCoordinates : responseData });
-        });
-        
+            .then((response) => {
+                return response.json()
+            })
+            .then(responseData => {
+                console.log(responseData);
+                // Here we set response as path
+                if (responseData.DepartureTime == "0001-01-01T00:00:00Z")
+                    responseData.DepartureTime = ""
+                if (responseData.ArrivalTime == "0001-01-01T00:00:00Z")
+                    responseData.ArrivalTime = ""
+                responseData.Duration = moment.duration(responseData.Duration / 1000000).humanize()
+                this.setState({ routeInfo: responseData });
+            });
+
         ;
     }
 
     render() {
         return <div>
-            <UserInput submit={this.submit}/>
-            <MyMapComponent pathCoordinates={this.state.pathCoordinates}/>
+            <Container>
+                <Row>
+                    <Col md={8}>
+                        <UserInput submit={this.submit} />
+                    </Col>
+                    <Col md={4}>
+                        <RouteInfo routeInfo={this.state.routeInfo}/>
+                    </Col>
+                </Row>
+            </Container>
+            <MyMapComponent pathCoordinates={this.state.routeInfo.Route} />
         </div>;
     }
 }

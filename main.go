@@ -13,7 +13,7 @@ import (
 func parseRequest(clientRequest url.Values, googleRequest *trip.GoogleCustomRouteRequest) {
 	for key, value := range clientRequest {
 		fmt.Println(key, value)
-		if value[0] == "undefined" {
+		if value[0] == "undefined" || value[0] == "null" {
 			continue
 		}
 
@@ -70,7 +70,7 @@ func main() {
 			parseRequest(c.Request.PostForm, &request)
 
 			var googleResponse = trip.Route(request)
-			var response = trip.GetCoordinatesFromRoute(googleResponse)
+			var response = trip.GetCoordinatesAndInfoFromRoute(googleResponse)
 			// fmt.Printf("%# v", pretty.Formatter(response))
 
 			c.JSON(200, response)
