@@ -9,13 +9,15 @@ Studies project for spatial databases.
 #### Backend
 Put your Google API KEY in file
 ```bash
-$PROJECT_ROOT/config/config.secret.json
+$PROJECT_ROOT/frontend/src/config/config.secret.json
 ```
 3trd party libraries:
 ```
 $ go get github.com/tkanos/gonfig
 $ go get github.com/tkanos/gonfig
 $ go get googlemaps.github.io/maps
+$ go get github.com/gin-gonic/gin
+$ go get github.com/gin-gonic/contrib/static
 ```
 Run:
 ```
@@ -28,16 +30,16 @@ $ go run main.go
 There are two options:
 - Run separately 
 ```
+// Frontend will be avaliable on port :3000 and requests will be passed to go backend at :8000
 $ cd frontend
 $ npm install
 $ npm start
-# Frontend will be avaliable on port :3000 and requests will be passed to go backend at :8000
 ```
 
 - Run combined 
 ```
+// Frontend will be avaliable on :8000 - make sure that go backend is running
 $ cd frontend
 $ npm install
 $ npm dist
-# Frontend will be avaliable on :8000 - make sure that go backend is running
 ```
