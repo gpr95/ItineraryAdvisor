@@ -1,8 +1,9 @@
-package main
+package trip
 
 import (
-	"github.com/tkanos/gonfig"
 	"log"
+
+	"github.com/tkanos/gonfig"
 )
 
 func check(err error) {

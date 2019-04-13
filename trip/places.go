@@ -1,24 +1,25 @@
-package main
+package trip
 
 import (
 	"context"
 	"fmt"
-	"github.com/kr/pretty"
-	"googlemaps.github.io/maps"
 	"log"
 	"os"
+
+	"github.com/kr/pretty"
+	"googlemaps.github.io/maps"
 )
 
-//input                     "input", "", "The text input specifying which place to search for (for example, a name, address, or phone number)."
-//inputType                 "inputType", "", "The type of input. This can be one of either textquery or phonenumber."
-//fields                    "fields", "", "Comma seperated list of Fields"
+//Input                     "Input", "", "The text Input specifying which place to search for (for example, a name, address, or phone number)."
+//InputType                 "InputType", "", "The type of Input. This can be one of either textquery or phonenumber."
+//Fields                    "Fields", "", "Comma seperated list of Fields"
 type GoogleCustomPlacesRequest struct {
-	input     string
-	inputType string
-	fields    string
+	Input     string
+	InputType string
+	Fields    string
 }
 
-func place(request GoogleCustomPlacesRequest) {
+func Place(request GoogleCustomPlacesRequest) {
 	configuration, _ := getSecrets()
 
 	var client *maps.Client
@@ -32,8 +33,8 @@ func place(request GoogleCustomPlacesRequest) {
 	check(err)
 
 	r := &maps.FindPlaceFromTextRequest{
-		Input:     request.input,
-		InputType: parseInputType(request.inputType),
+		Input:     request.Input,
+		InputType: parseInputType(request.InputType),
 	}
 
 	place, err := client.FindPlaceFromText(context.Background(), r)
@@ -51,7 +52,7 @@ func parseInputType(inputType string) maps.FindPlaceFromTextInputType {
 	case "phonenumber":
 		it = maps.FindPlaceFromTextInputTypePhoneNumber
 	default:
-		log.Fatalf("Unknown input type '%s'", inputType)
+		log.Fatalf("Unknown Input type '%s'", inputType)
 	}
 	return it
 }

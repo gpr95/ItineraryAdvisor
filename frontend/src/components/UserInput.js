@@ -4,15 +4,17 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
-import Datetime from 'react-datetime';
-import 'react-datetime/css/react-datetime.css';
-
+import TimePicker from 'rc-time-picker';
+import 'rc-time-picker/assets/index.css';
 
 export default class UserInput extends Component {
 
     constructor(props) {
         super(props);
-        this.state = { username: '', password: '' };
+        this.state = {
+            username: '',
+            password: ''
+        };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
@@ -24,14 +26,13 @@ export default class UserInput extends Component {
         event.preventDefault();
         const data = new FormData(event.target);
         console.log(data)
-        
-        data.set('departure', this.refs.departure.state.inputValue)
-        data.set('arrival', this.refs.arrival.state.inputValue)
 
-        fetch('/api/form-submit-url', {
-            method: 'POST',
-            body: data,
-        });
+        console.log(this.refs.departure)
+
+        data.set('departure', this.refs.departure.state.value)
+        data.set('arrival', this.refs.arrival.state.value)
+
+        this.props.submit(data);
     }
 
     render() {
@@ -94,29 +95,30 @@ export default class UserInput extends Component {
                             </Col>
                         </Row>
                         <Row>
+                            <Form.Group>
+                                <Col>
 
-                            <Col>
-                                <Form.Group>
                                     <Form.Label>Departure</Form.Label>
-                                    <Datetime viewMode="time"
-                                    ref="departure" />
-                                </Form.Group>
-                            </Col>
+                                </Col><Col>
+                                    <TimePicker ref="departure" />
 
+                                </Col>
+                            </Form.Group>
+                            <Form.Group>
+                                <Col>
 
-                            <Col>
-                                <Form.Group>
                                     <Form.Label>Arrival</Form.Label>
-                                    <Datetime viewMode="time"
-                                        ref="arrival" />
-                                </Form.Group>
-                            </Col>
-                        </Row>
-                        <Row>
+                                </Col><Col>
+                                    <TimePicker ref="arrival" />
+
+                                </Col>
+                            </Form.Group>
+                            {/* </Row>
+                        <Row> */}
                             <Col>
-                                <Form.Group>
+                                {/* <Form.Group> */}
                                     <Button type="submit">Find!</Button>
-                                </Form.Group>
+                                {/* </Form.Group> */}
                             </Col>
                         </Row>
 
