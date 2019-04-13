@@ -43,7 +43,7 @@ type GoogleCustomRouteRequest struct {
 	TrafficModel             string
 }
 
-func Route(request GoogleCustomRouteRequest) []maps.GeocodedWaypoint {
+func Route(request GoogleCustomRouteRequest) []maps.Route {
 	configuration, _ := getSecrets()
 
 	var client *maps.Client
@@ -95,9 +95,8 @@ func Route(request GoogleCustomRouteRequest) []maps.GeocodedWaypoint {
 	check(err)
 
 	fmt.Printf("%# v", pretty.Formatter(routes))
-	fmt.Printf("====================================")
 	fmt.Printf("%# v", pretty.Formatter(waypoints))
-	return waypoints
+	return routes
 
 }
 

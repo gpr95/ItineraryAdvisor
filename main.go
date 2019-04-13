@@ -10,11 +10,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type Waypoint struct {
-	Lat string
-	Lng string
-}
-
 func parseRequest(clientRequest url.Values, googleRequest *trip.GoogleCustomRouteRequest) {
 	for key, value := range clientRequest {
 		fmt.Println(key, value)
@@ -35,10 +30,6 @@ func parseRequest(clientRequest url.Values, googleRequest *trip.GoogleCustomRout
 			googleRequest.ArrivalTime = value[0]
 		}
 	}
-
-}
-
-func parseResponse(googleResponse []string) {
 
 }
 
@@ -77,12 +68,15 @@ func main() {
 		api.POST("/form-submit-url", func(c *gin.Context) {
 			c.Request.ParseMultipartForm(1000)
 			parseRequest(c.Request.PostForm, &request)
-			fmt.Println(request)
-			trip.Route(request)
+
+			var googleResponse = trip.Route(request)
+			var response = trip.GetCoordinatesFromRoute(googleResponse)
+			// fmt.Printf("%# v", pretty.Formatter(response))
+
+			c.JSON(200, response)
 		})
 	}
 
 	// Start and run the server
 	router.Run(":8000")
-
 }

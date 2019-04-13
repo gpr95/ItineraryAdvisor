@@ -14,6 +14,6 @@ func check(err error) {
 
 func getSecrets() (Configuration, error) {
 	configuration := Configuration{}
-	err := gonfig.GetConf("config/config.secret.json", &configuration)
+	err := gonfig.GetConf("frontend/src/config/config.secret.json", &configuration)
 	return configuration, err
 }
