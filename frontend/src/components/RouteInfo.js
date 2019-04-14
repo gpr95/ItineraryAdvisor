@@ -5,14 +5,6 @@ import Table from 'react-bootstrap/Table';
 
 export default class RouteInfo extends Component {
 
-    constructor(props) {
-        super(props);
-
-        // this.state = {
-        //     routeInfo: {},
-        // };
-    }
-
     render() {
         return (
             <React.Fragment>

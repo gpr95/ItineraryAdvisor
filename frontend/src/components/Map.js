@@ -4,7 +4,7 @@ import {
     withScriptjs,
     withGoogleMap,
     GoogleMap,
-    Marker,
+    // Marker,
     Polyline
 } from "react-google-maps";
 import * as config from '../config/config.secret.json'
