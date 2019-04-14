@@ -7,13 +7,15 @@ import Button from 'react-bootstrap/Button';
 import TimePicker from 'rc-time-picker';
 import 'rc-time-picker/assets/index.css';
 
-export default class UserInput extends Component {
+import "./style.css";
 
+export default class UserInput extends Component {
     constructor(props) {
         super(props);
         this.state = {
             username: '',
-            password: ''
+            password: '',
+            waypoints: [{name:""}],
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -32,10 +34,36 @@ export default class UserInput extends Component {
         data.set('departure', this.refs.departure.state.value)
         data.set('arrival', this.refs.arrival.state.value)
 
+        // new
+        const { name, waypoints } = this.state;
+
         this.props.submit(data);
     }
 
+    handleWaypointNameChange = idx => evt => {
+        const newWaypoints = this.state.waypoints.map((waypoint, sidx) => {
+            if (idx !== sidx) return waypoint;
+            return { ...waypoint, name: evt.target.value };
+        });
+
+        this.setState({ waypoints: newWaypoints });
+    };
+
+    handleAddWaypoint = () => {
+        this.setState({
+            waypoints: this.state.waypoints.concat([{ name: "" }])
+        });
+    };
+
+    handleRemoveWaypoint = idx => () => {
+        this.setState({
+            waypoints: this.state.waypoints.filter((s, sidx) => idx !== sidx)
+        });
+    };
+
+
     render() {
+        let {waypoints} = this.state
         return (
 
             <React.Fragment>
@@ -94,6 +122,34 @@ export default class UserInput extends Component {
                                 </Form.Group>
                             </Col>
                         </Row>
+
+                        <Row>
+                            {this.state.waypoints.map((waypoint, idx) => (
+                                <div className="waypoint">
+                                    <input
+                                        type="text"
+                                        placeholder={`Waypoint #${idx + 1} name`}
+                                        value={waypoint.name}
+                                        onChange={this.handleWaypointNameChange(idx)}
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={this.handleRemoveWaypoint(idx)}
+                                        className="small"
+                                    >
+                                        -
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                type="button"
+                                onClick={this.handleAddWaypoint}
+                                className="small"
+                            >
+                                Add Waypoint
+                            </button>
+                        </Row>
+
                         <Row>
                             <Form.Group>
                                 <Col>
