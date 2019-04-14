@@ -4,6 +4,8 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
+import InputGroup from 'react-bootstrap/InputGroup';
+
 import TimePicker from 'rc-time-picker';
 import 'rc-time-picker/assets/index.css';
 
@@ -98,6 +100,8 @@ export default class UserInput extends Component {
                     <script>var Alert = ReactBootstrap.Alert;</script>
 
                     <Form onSubmit={this.handleSubmit}>
+                    <Row>
+                    <Col md={8}>
                         <Row>
                             <Col>
                                 <Form.Label>Origin</Form.Label>
@@ -131,30 +135,9 @@ export default class UserInput extends Component {
                         </Row>
 
                         <Row>
-                            {this.state.waypoints.map((waypoint, idx) => (
-                                <div className="waypoint">
-                                    <input
-                                        type="text"
-                                        placeholder={`Waypoint #${idx + 1} name`}
-                                        value={waypoint.name}
-                                        onChange={this.handleWaypointNameChange(idx)}
-                                    />
-                                    <button
-                                        type="button"
-                                        onClick={this.handleRemoveWaypoint(idx)}
-                                        className="small"
-                                    >
-                                        -
-                                    </button>
-                                </div>
-                            ))}
-                            <button
-                                type="button"
-                                onClick={this.handleAddWaypoint}
-                                className="small"
-                            >
-                                Add Waypoint
-                            </button>
+                        <Col>
+
+                            </Col>
                         </Row>
 
                         <Row>
@@ -180,11 +163,46 @@ export default class UserInput extends Component {
                         <Row> */}
                             <Col>
                                 {/* <Form.Group> */}
-                                    <Button type="submit">Find!</Button>
+                                    <Button className="find" type="submit">Find!</Button>
                                 {/* </Form.Group> */}
                             </Col>
                         </Row>
-
+                        </Col>
+                        <Col md={4}>
+                        <Row>
+                        <Form.Label>Waypoints</Form.Label>
+                        {this.state.waypoints.map((waypoint, idx) => (
+                                <InputGroup className="mb-3 waypoint" >
+                                    <Form.Control
+                                        type="text"
+                                        placeholder={`Waypoint #${idx + 1} name`}
+                                        value={waypoint.name}
+                                        onChange={this.handleWaypointNameChange(idx)}
+                                    />
+                                    <InputGroup.Append>
+                                    <Button 
+                                        type="button"
+                                        onClick={this.handleRemoveWaypoint(idx)}
+                                        className="small"
+                                    >
+                                        -
+                                    </Button>
+                                    </InputGroup.Append>
+                                </InputGroup>
+                            ))}
+                            </Row>
+                            <Row>
+                            <Button
+                                type="button"
+                                onClick={this.handleAddWaypoint}
+                                className="small"
+                                size="sm"
+                            >
+                                Add Waypoint
+                            </Button>
+                            </Row>
+                        </Col>
+                        </Row>
                     </Form>
 
                     {/* <h3>Your username is: {this.state.username}:{this.state.password}</h3> */}

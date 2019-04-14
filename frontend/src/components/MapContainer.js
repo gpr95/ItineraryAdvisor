@@ -30,9 +30,9 @@ export default class MapContainer extends React.Component {
             .then(responseData => {
                 console.log(responseData);
                 // Here we set response as path
-                if (responseData.DepartureTime == "0001-01-01T00:00:00Z")
+                if (responseData.DepartureTime === "0001-01-01T00:00:00Z")
                     responseData.DepartureTime = ""
-                if (responseData.ArrivalTime == "0001-01-01T00:00:00Z")
+                if (responseData.ArrivalTime === "0001-01-01T00:00:00Z")
                     responseData.ArrivalTime = ""
                 responseData.Duration = moment.duration(responseData.Duration / 1000000).humanize()
                 this.setState({ routeInfo: responseData });
@@ -45,10 +45,10 @@ export default class MapContainer extends React.Component {
         return <div>
             <Container>
                 <Row>
-                    <Col md={8}>
+                    <Col md={9}>
                         <UserInput submit={this.submit} />
                     </Col>
-                    <Col md={4}>
+                    <Col md={3}>
                         <RouteInfo routeInfo={this.state.routeInfo}/>
                     </Col>
                 </Row>

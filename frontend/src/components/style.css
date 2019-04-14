@@ -1,4 +1,4 @@
-* {
+/* * {
     box-sizing: border-box;
 }
 
@@ -32,18 +32,7 @@ form input.error {
     border-color: red;
 }
 
-form button {
-    display: block;
-    width: 100%;
-    appearance: none;
-    border-radius: 5px;
-    background-color: #84c00c;
-    color: #fff;
-    border: none;
-    font-size: 16px;
-    height: 40px;
-    margin-top: 30px;
-}
+
 
 form button:hover {
     background-color: #669509;
@@ -66,13 +55,30 @@ form button.small:hover {
     background-color: #999;
 }
 
-.waypoint {
-    display: flex;
-    direction: row;
-    align-items: center;
-}
+
 
 .waypoint button {
     margin: 0;
     margin-left: 10px;
+} */
+.waypoint {
+    display: flex;
+    direction: row;
+    align-items: center;
+    padding: 3px;
+}
+
+form .find {
+    /* display: block; */
+    width: 100%;
+    /* position: absolute; */
+    /* bottom: 10px; */
+    /* appearance: none;
+    border-radius: 5px;
+    background-color: #84c00c;
+    color: #fff;
+    border: none;
+    font-size: 16px;
+    height: 40px;*/
+    margin-top: 25px; 
 }
