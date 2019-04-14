@@ -21,3 +21,4 @@ g
 
 # Ignore idea settings
 .idea/**
+frontend/.idea/**
