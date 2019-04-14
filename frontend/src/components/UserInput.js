@@ -27,15 +27,23 @@ export default class UserInput extends Component {
     handleSubmit(event) {
         event.preventDefault();
         const data = new FormData(event.target);
-        console.log(data)
+        console.log(data);
 
-        console.log(this.refs.departure)
+        console.log(this.refs.departure);
 
-        data.set('departure', this.refs.departure.state.value)
-        data.set('arrival', this.refs.arrival.state.value)
+        data.set('departure', this.refs.departure.state.value);
+        data.set('arrival', this.refs.arrival.state.value);
 
-        // new
-        const { name, waypoints } = this.state;
+        let wayPointsParsed;
+        wayPointsParsed = '';
+        for (let waypoint of this.state.waypoints) {
+            wayPointsParsed = wayPointsParsed.concat(waypoint.name);
+            wayPointsParsed = wayPointsParsed.concat('|')
+        }
+        if(wayPointsParsed.length !== 0)
+            wayPointsParsed = wayPointsParsed.substring(0, wayPointsParsed.length - 1);
+
+        data.set('waypoints', wayPointsParsed);
 
         this.props.submit(data);
     }
@@ -63,7 +71,6 @@ export default class UserInput extends Component {
 
 
     render() {
-        let {waypoints} = this.state
         return (
 
             <React.Fragment>

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/url"
+	"strings"
 
 	"github.com/gpr95/ItineraryAdvisor/trip"
 
@@ -28,6 +29,8 @@ func parseRequest(clientRequest url.Values, googleRequest *trip.GoogleCustomRout
 			googleRequest.DepartureTime = value[0]
 		case "arrival":
 			googleRequest.ArrivalTime = value[0]
+		case "waypoints":
+			googleRequest.Waypoints = strings.Join(value, "|")
 		}
 	}
 
@@ -50,7 +53,7 @@ func main() {
 	}
 
 	// requestPlaces := GoogleCustomPlacesRequest{
-	// 	input:     "Museum of Contemporary Art Australia",
+	// 	input:     "Museum of Contemporary Art Australia",o
 	// 	inputType: "textquery",
 	// 	fields:    "photos,formatted_address,name,rating,opening_hours,geometry",
 	// }
