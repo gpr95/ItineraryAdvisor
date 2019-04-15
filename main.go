@@ -30,6 +30,8 @@ func parseRequest(clientRequest url.Values, googleRequest *trip.GoogleCustomRout
 			googleRequest.ArrivalTime = value[0]
 		case "waypoints":
 			googleRequest.Waypoints = strings.Join(value, "|")
+		case "waypoints-time":
+			googleRequest.WaypointsTime = strings.Join(value, "|")
 		}
 	}
 
@@ -44,20 +46,13 @@ func main() {
 		DepartureTime:            "",
 		ArrivalTime:              "",
 		Waypoints:                "",
+		WaypointsTime:            "",
 		Language:                 "PL",
 		Region:                   "",
 		TransitMode:              "",
 		TransitRoutingPreference: "",
 		TrafficModel:             "",
 	}
-
-	// requestPlaces := GoogleCustomPlacesRequest{
-	// 	input:     "Museum of Contemporary Art Australia",o
-	// 	inputType: "textquery",
-	// 	fields:    "photos,formatted_address,name,rating,opening_hours,geometry",
-	// }
-
-	// place(requestPlaces)
 
 	router := gin.Default()
 

@@ -35,11 +35,56 @@ type GoogleCustomRouteRequest struct {
 	DepartureTime            string
 	ArrivalTime              string
 	Waypoints                string
+	WaypointsTime			 string
 	Language                 string
 	Region                   string
 	TransitMode              string
 	TransitRoutingPreference string
 	TrafficModel             string
+}
+
+func analyzeWayppoints(request GoogleCustomRouteRequest) []maps.Route {
+	r := &maps.DirectionsRequest{
+		Origin:        request.Origin,
+		Destination:   request.Destination,
+		DepartureTime: request.DepartureTime,
+		ArrivalTime:   request.ArrivalTime,
+		Language:      request.Language,
+		Region:        request.Region,
+	}
+
+	lookupMode(request.Mode, r)
+	lookupMode(request.Mode, r)
+	lookupTransitRoutingPreference(request.TransitRoutingPreference, r)
+	lookupTrafficModel(request.TrafficModel, r)
+
+	if request.Waypoints != "" {
+		r.Waypoints = strings.Split(request.Waypoints, "|")
+	}
+
+	if request.TransitMode != "" {
+		for _, t := range strings.Split(request.TransitMode, "|") {
+			switch t {
+			case "bus":
+				r.TransitMode = append(r.TransitMode, maps.TransitModeBus)
+			case "subway":
+				r.TransitMode = append(r.TransitMode, maps.TransitModeSubway)
+			case "train":
+				r.TransitMode = append(r.TransitMode, maps.TransitModeTrain)
+			case "tram":
+				r.TransitMode = append(r.TransitMode, maps.TransitModeTram)
+			case "rail":
+				r.TransitMode = append(r.TransitMode, maps.TransitModeRail)
+			}
+		}
+	}
+
+	routes, _, err := client.Directions(context.Background(), r)
+	check(err)
+
+	// fmt.Printf("%# v", pretty.Formatter(routes))
+	// fmt.Printf("%# v", pretty.Formatter(waypoints))
+	return routes
 }
 
 func Route(request GoogleCustomRouteRequest) []maps.Route {
