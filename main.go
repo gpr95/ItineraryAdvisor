@@ -2,16 +2,15 @@ package main
 
 import (
 	"fmt"
-	"net/url"
-	"strings"
-
-	"github.com/gpr95/ItineraryAdvisor/trip"
-
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	"github.com/gpr95/ItineraryAdvisor/trip"
+	"net/url"
+	"strings"
 )
 
 func parseRequest(clientRequest url.Values, googleRequest *trip.GoogleCustomRouteRequest) {
+
 	for key, value := range clientRequest {
 		fmt.Println(key, value)
 		if value[0] == "undefined" || value[0] == "null" {

@@ -1,8 +1,8 @@
 package trip
 
 import (
+	"fmt"
 	"time"
-
 	"googlemaps.github.io/maps"
 )
 
@@ -21,7 +21,9 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 	for _, route := range routes {
 		for _, leg := range route.Legs {
 			output.Distance = leg.Distance.HumanReadable
-			output.Duration = leg.Duration
+			fmt.Println("Leg duration -> " + leg.Duration.String())
+			output.Duration = output.Duration + leg.Duration
+			fmt.Println("Total duration -> " + output.Duration.String())
 			output.ArrivalTime = leg.ArrivalTime
 			output.DepartureTime = leg.DepartureTime
 			for _, step := range leg.Steps {
