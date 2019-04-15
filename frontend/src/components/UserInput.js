@@ -5,6 +5,8 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 
 import TimePicker from 'rc-time-picker';
 import 'rc-time-picker/assets/index.css';
@@ -17,7 +19,7 @@ export default class UserInput extends Component {
         this.state = {
             username: '',
             password: '',
-            waypoints: [{name:""}],
+            waypoints: [{ name: "", time: "1h" }],
         };
         this.handleSubmit = this.handleSubmit.bind(this);
     }
@@ -42,11 +44,11 @@ export default class UserInput extends Component {
             wayPointsParsed = wayPointsParsed.concat(waypoint.name);
             wayPointsParsed = wayPointsParsed.concat('|')
         }
-        if(wayPointsParsed.length !== 0)
+        if (wayPointsParsed.length !== 0)
             wayPointsParsed = wayPointsParsed.substring(0, wayPointsParsed.length - 1);
 
         data.set('waypoints', wayPointsParsed);
-
+        data.set('waypoints-time', this.state.waypoints.map((w) => w.time).join('|'));
         this.props.submit(data);
     }
 
@@ -100,108 +102,123 @@ export default class UserInput extends Component {
                     <script>var Alert = ReactBootstrap.Alert;</script>
 
                     <Form onSubmit={this.handleSubmit}>
-                    <Row>
-                    <Col md={8}>
                         <Row>
-                            <Col>
-                                <Form.Label>Origin</Form.Label>
-                                <Form.Control defaultValue="Chełm"
-                                    id="origin"
-                                    name="origin"
-                                />
-                            </Col>
-                            <Col>
-                                <Form.Label>Destination</Form.Label>
-                                <Form.Control defaultValue="Warszawa"
-                                    id="destination"
-                                    name="destination" />
-                            </Col>
+                            <Col md={8}>
+                                <Row>
+                                    <Col>
+                                        <Form.Label>Origin</Form.Label>
+                                        <Form.Control defaultValue="Chełm"
+                                            id="origin"
+                                            name="origin"
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <Form.Label>Destination</Form.Label>
+                                        <Form.Control defaultValue="Warszawa"
+                                            id="destination"
+                                            name="destination" />
+                                    </Col>
 
-                        </Row>
-                        <Row>
-                            <Col>
-                                <Form.Group controlId="exampleForm.ControlSelect1">
-                                    <Form.Label>Lookup mode</Form.Label>
-                                    <Form.Control as="select"
-                                        name="mode">
-                                        <option>driving</option>
-                                        <option>walking</option>
-                                        <option>bicycling</option>
-                                        <option>transit</option>
-                                        <option>ignore</option>
-                                    </Form.Control>
-                                </Form.Group>
-                            </Col>
-                        </Row>
+                                </Row>
+                                <Row>
+                                    <Col>
+                                        <Form.Group controlId="exampleForm.ControlSelect1">
+                                            <Form.Label>Lookup mode</Form.Label>
+                                            <Form.Control as="select"
+                                                name="mode">
+                                                <option>driving</option>
+                                                <option>walking</option>
+                                                <option>bicycling</option>
+                                                <option>transit</option>
+                                                <option>ignore</option>
+                                            </Form.Control>
+                                        </Form.Group>
+                                    </Col>
+                                </Row>
 
-                        <Row>
-                        <Col>
+                                <Row>
+                                    <Col>
 
-                            </Col>
-                        </Row>
+                                    </Col>
+                                </Row>
 
-                        <Row>
-                            <Form.Group>
-                                <Col>
+                                <Row>
+                                    <Form.Group>
+                                        <Col>
 
-                                    <Form.Label>Departure</Form.Label>
-                                </Col><Col>
-                                    <TimePicker ref="departure" />
+                                            <Form.Label>Departure</Form.Label>
+                                        </Col><Col>
+                                            <TimePicker ref="departure" />
 
-                                </Col>
-                            </Form.Group>
-                            <Form.Group>
-                                <Col>
+                                        </Col>
+                                    </Form.Group>
+                                    <Form.Group>
+                                        <Col>
 
-                                    <Form.Label>Arrival</Form.Label>
-                                </Col><Col>
-                                    <TimePicker ref="arrival" />
+                                            <Form.Label>Arrival</Form.Label>
+                                        </Col><Col>
+                                            <TimePicker ref="arrival" />
 
-                                </Col>
-                            </Form.Group>
-                            {/* </Row>
+                                        </Col>
+                                    </Form.Group>
+                                    {/* </Row>
                         <Row> */}
-                            <Col>
-                                {/* <Form.Group> */}
-                                    <Button className="find" type="submit">Find!</Button>
-                                {/* </Form.Group> */}
+                                    <Col>
+                                        {/* <Form.Group> */}
+                                        <Button className="find" type="submit">Find!</Button>
+                                        {/* </Form.Group> */}
+                                    </Col>
+                                </Row>
                             </Col>
-                        </Row>
-                        </Col>
-                        <Col md={4}>
-                        <Row>
-                        <Form.Label>Waypoints</Form.Label>
-                        {this.state.waypoints.map((waypoint, idx) => (
-                                <InputGroup className="mb-3 waypoint" >
-                                    <Form.Control
-                                        type="text"
-                                        placeholder={`Waypoint #${idx + 1} name`}
-                                        value={waypoint.name}
-                                        onChange={this.handleWaypointNameChange(idx)}
-                                    />
-                                    <InputGroup.Append>
-                                    <Button 
-                                        type="button"
-                                        onClick={this.handleRemoveWaypoint(idx)}
-                                        className="small"
-                                    >
-                                        -
+                            <Col md={4}>
+                                <Row>
+                                    <Form.Label>Waypoints</Form.Label>
+                                    {this.state.waypoints.map((waypoint, idx) => (
+                                        <InputGroup className="mb-3 waypoint" >
+                                            <Form.Control
+                                                type="text"
+                                                placeholder={`Waypoint #${idx + 1} name`}
+                                                value={waypoint.name}
+                                                onChange={this.handleWaypointNameChange(idx)}
+                                            />
+                                            <OverlayTrigger
+                                                key="top"
+                                                placement="top"
+                                                overlay={
+                                                    <Tooltip id={`tooltip-top`}>
+                                                        Time format: <strong>3h 15m</strong>.
+                                                    </Tooltip>
+                                                }
+                                            >
+                                                <Form.Control
+                                                    className="waypoint-time"
+                                                    type="text"
+                                                    value={waypoint.time}
+                                                />
+                                            </OverlayTrigger>
+                                            <InputGroup.Append>
+                                                <Button
+                                                    type="button"
+                                                    onClick={this.handleRemoveWaypoint(idx)}
+                                                    className="small"
+                                                >
+                                                    -
                                     </Button>
-                                    </InputGroup.Append>
-                                </InputGroup>
-                            ))}
-                            </Row>
-                            <Row>
-                            <Button
-                                type="button"
-                                onClick={this.handleAddWaypoint}
-                                className="small"
-                                size="sm"
-                            >
-                                Add Waypoint
+                                            </InputGroup.Append>
+                                        </InputGroup>
+                                    ))}
+                                </Row>
+                                <Row>
+                                    <Button
+                                        type="button"
+                                        onClick={this.handleAddWaypoint}
+                                        className="small"
+                                        size="sm"
+                                    >
+                                        Add Waypoint
                             </Button>
-                            </Row>
-                        </Col>
+                                </Row>
+                            </Col>
                         </Row>
                     </Form>
 

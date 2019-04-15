@@ -68,6 +68,11 @@ form button.small:hover {
     padding: 3px;
 }
 
+.waypoint-time {
+    width: 20px;
+    
+}
+
 form .find {
     /* display: block; */
     width: 100%;
