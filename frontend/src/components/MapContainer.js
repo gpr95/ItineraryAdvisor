@@ -3,7 +3,6 @@ import UserInput from './UserInput.js';
 import RouteInfo from './RouteInfo.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import Container from 'react-bootstrap/Container';
 import MyMapComponent from './Map.js';
 import moment from 'moment';
 
@@ -42,18 +41,19 @@ export default class MapContainer extends React.Component {
     }
 
     render() {
-        return <div>
-            <Container>
-                <Row>
-                    <Col md={9}>
-                        <UserInput submit={this.submit} />
-                    </Col>
-                    <Col md={3}>
-                        <RouteInfo routeInfo={this.state.routeInfo}/>
-                    </Col>
-                </Row>
-            </Container>
-            <MyMapComponent pathCoordinates={this.state.routeInfo.Route} />
-        </div>;
+        return <React.Fragment>
+            <Row className="flex-grow-1" >
+                <Col md={3}>
+                    <UserInput submit={this.submit} />
+                </Col>
+                <Col md={4}>
+                    <RouteInfo routeInfo={this.state.routeInfo} />
+                </Col>
+                <Col md={5} className="right-col">
+                    <MyMapComponent pathCoordinates={this.state.routeInfo.Route} />
+                </Col>
+            </Row>
+
+        </React.Fragment>;
     }
 }

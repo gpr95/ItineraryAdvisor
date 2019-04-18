@@ -5,64 +5,56 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
-
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import TimePicker from 'rc-time-picker';
+
 import 'rc-time-picker/assets/index.css';
+import 'bootstrap/dist/css/bootstrap.min.css'
+
+import 'react/umd/react.production.min.js'
+// Should be 'umd' but compilation fails
+// import 'react-dom/umd/react-dom.production.js'
+import 'react-dom/cjs/react-dom.production.min.js'
+import 'react-bootstrap/dist/react-bootstrap.min.js'
 
 import "./style.css";
+import Table from 'react-bootstrap/Table';
+
+let TRANSPORT_TYPE = ['driving', 'walking', 'bicycling', 'transit']
 
 export default class UserInput extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            username: '',
-            password: '',
-            waypoints: [{name:""}],
+            newWaypointName: '',
+            newWaypointTime: '',
+            newWaypointValid: false,
+            newWaypointNameValid: false,
+            newWaypointTimeValid: false,
+            waypoints: [],
         };
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.validateNewWaypoint = this.validateNewWaypoint.bind(this);
     }
-
-    handleChange = ({ target }) => {
-        this.setState({ [target.name]: target.value });
-    };
 
     handleSubmit(event) {
         event.preventDefault();
         const data = new FormData(event.target);
-        console.log(data);
 
-        console.log(this.refs.departure);
-
-        data.set('departure', this.refs.departure.state.value);
         data.set('arrival', this.refs.arrival.state.value);
-
-        let wayPointsParsed;
-        wayPointsParsed = '';
-        for (let waypoint of this.state.waypoints) {
-            wayPointsParsed = wayPointsParsed.concat(waypoint.name);
-            wayPointsParsed = wayPointsParsed.concat('|')
-        }
-        if(wayPointsParsed.length !== 0)
-            wayPointsParsed = wayPointsParsed.substring(0, wayPointsParsed.length - 1);
-
-        data.set('waypoints', wayPointsParsed);
-
+        data.set('departure', this.refs.departure.state.value);
+        data.set('waypoints', this.state.waypoints.map((w) => w.name).join('|'));
+        data.set('waypoints-time', this.state.waypoints.map((w) => w.time).join('|'));
         this.props.submit(data);
     }
 
-    handleWaypointNameChange = idx => evt => {
-        const newWaypoints = this.state.waypoints.map((waypoint, sidx) => {
-            if (idx !== sidx) return waypoint;
-            return { ...waypoint, name: evt.target.value };
-        });
-
-        this.setState({ waypoints: newWaypoints });
-    };
-
     handleAddWaypoint = () => {
-        this.setState({
-            waypoints: this.state.waypoints.concat([{ name: "" }])
-        });
+        let newelement = { name: this.state.newWaypointName, time: this.state.newWaypointTime }
+
+        this.setState(prevState => ({
+            waypoints: [...prevState.waypoints, newelement]
+        }));
     };
 
     handleRemoveWaypoint = idx => () => {
@@ -71,141 +63,136 @@ export default class UserInput extends Component {
         });
     };
 
+    validateNewWaypoint(fieldName, value) {
+        let timeValid = this.state.newWaypointTimeValid
+        let nameValid = this.state.newWaypointNameValid
+
+        switch (fieldName) {
+            case 'newWaypointTime':
+                timeValid = /^(\d+h)?[ ]?(\d+m)?$/.test(value);
+                this.setState({ newWaypointTimeValid: timeValid });
+                break;
+            case 'newWaypointName':
+                nameValid = value.length >= 2;
+                this.setState({ newWaypointNameValid: nameValid });
+                break;
+            default:
+                break;
+        }
+        this.setState({ newWaypointValid: timeValid && nameValid });
+    }
+
+    handleUserWaypointInput(e) {
+        const name = e.target.name;
+        const value = e.target.value;
+        this.setState({ [name]: value });
+        this.validateNewWaypoint(name, value);
+    }
 
     render() {
         return (
 
             <React.Fragment>
                 <Container>
-
-                    <link
-                        rel="stylesheet"
-                        href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
-                        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
-                        crossOrigin="anonymous"
-                    />
-
-                    <script src="https://unpkg.com/react/umd/react.production.js" crossOrigin="anonymous" />
-
-                    <script
-                        src="https://unpkg.com/react-dom/umd/react-dom.production.js"
-                        crossOrigin="anonymous"
-                    />
-
-                    <script
-                        src="https://unpkg.com/react-bootstrap@next/dist/react-bootstrap.min.js"
-                        crossOrigin="anonymous"
-                    />
-
-                    <script>var Alert = ReactBootstrap.Alert;</script>
-
                     <Form onSubmit={this.handleSubmit}>
-                    <Row>
-                    <Col md={8}>
                         <Row>
-                            <Col>
-                                <Form.Label>Origin</Form.Label>
-                                <Form.Control defaultValue="Chełm"
-                                    id="origin"
-                                    name="origin"
-                                />
-                            </Col>
-                            <Col>
-                                <Form.Label>Destination</Form.Label>
-                                <Form.Control defaultValue="Warszawa"
-                                    id="destination"
-                                    name="destination" />
-                            </Col>
-
+                            <Form.Label>Origin</Form.Label>
+                            <Form.Control defaultValue="Chełm"
+                                id="origin"
+                                name="origin"
+                            />
+                        </Row>
+                        <Row>
+                            <Form.Label>Destination</Form.Label>
+                            <Form.Control defaultValue="Warszawa"
+                                id="destination"
+                                name="destination" />
                         </Row>
                         <Row>
                             <Col>
-                                <Form.Group controlId="exampleForm.ControlSelect1">
-                                    <Form.Label>Lookup mode</Form.Label>
-                                    <Form.Control as="select"
-                                        name="mode">
-                                        <option>driving</option>
-                                        <option>walking</option>
-                                        <option>bicycling</option>
-                                        <option>transit</option>
-                                        <option>ignore</option>
-                                    </Form.Control>
+                                <Form.Group>
+                                    <Form.Label>Departure</Form.Label>
+                                    <TimePicker ref="departure" />
+                                </Form.Group>
+                            </Col><Col>
+                                <Form.Group>
+                                    <Form.Label>Arrival</Form.Label>
+                                    <TimePicker ref="arrival" />
                                 </Form.Group>
                             </Col>
                         </Row>
-
-                        <Row>
-                        <Col>
-
-                            </Col>
-                        </Row>
-
                         <Row>
                             <Form.Group>
+                                <Form.Label>Lookup mode</Form.Label>
                                 <Col>
-
-                                    <Form.Label>Departure</Form.Label>
-                                </Col><Col>
-                                    <TimePicker ref="departure" />
-
+                                    {TRANSPORT_TYPE.map(type => (
+                                        <Form.Check type='checkbox'
+                                            id={`${type}`}
+                                            label={`${type}`} />
+                                    ))}
                                 </Col>
                             </Form.Group>
-                            <Form.Group>
-                                <Col>
-
-                                    <Form.Label>Arrival</Form.Label>
-                                </Col><Col>
-                                    <TimePicker ref="arrival" />
-
-                                </Col>
-                            </Form.Group>
-                            {/* </Row>
-                        <Row> */}
-                            <Col>
-                                {/* <Form.Group> */}
-                                    <Button className="find" type="submit">Find!</Button>
-                                {/* </Form.Group> */}
-                            </Col>
                         </Row>
-                        </Col>
-                        <Col md={4}>
                         <Row>
-                        <Form.Label>Waypoints</Form.Label>
-                        {this.state.waypoints.map((waypoint, idx) => (
-                                <InputGroup className="mb-3 waypoint" >
+                            <Button className="find" type="submit">Find!</Button>
+                        </Row>
+                        <Row>
+                            <Form.Label>Waypoints</Form.Label>
+                            <InputGroup className="mb-3 waypoint" >
+                                <Form.Control
+                                    name="newWaypointName"
+                                    ref="newWaypointName"
+                                    style={{ flexGrow: '2' }}
+                                    placeholder='Waypoint name'
+                                    value={this.state.newWaypoint}
+                                    onChange={(event) => this.handleUserWaypointInput(event)}
+                                    isValid={this.state.newWaypointNameValid} />
+                                <OverlayTrigger key="top"
+                                    placement="top"
+                                    overlay={
+                                        <Tooltip id={'tooltip-top'}>
+                                            Time format: <strong>3h 15m</strong>.
+                                        </Tooltip>}>
                                     <Form.Control
-                                        type="text"
-                                        placeholder={`Waypoint #${idx + 1} name`}
-                                        value={waypoint.name}
-                                        onChange={this.handleWaypointNameChange(idx)}
-                                    />
-                                    <InputGroup.Append>
-                                    <Button 
-                                        type="button"
-                                        onClick={this.handleRemoveWaypoint(idx)}
-                                        className="small"
-                                    >
-                                        -
+                                        name="newWaypointTime"
+                                        ref="newWaypointTime"
+                                        placeholder='time'
+                                        value={this.state.newWaypointTime}
+                                        onChange={(event) => this.handleUserWaypointInput(event)}
+                                        isValid={this.state.newWaypointTimeValid} />
+                                </OverlayTrigger>
+                                <InputGroup.Append>
+                                    <Button type="button"
+                                        onClick={this.state.newWaypointValid ? this.handleAddWaypoint : null}
+                                        disabled={!this.state.newWaypointValid}>
+                                        Add waypoint
                                     </Button>
-                                    </InputGroup.Append>
-                                </InputGroup>
-                            ))}
-                            </Row>
-                            <Row>
-                            <Button
-                                type="button"
-                                onClick={this.handleAddWaypoint}
-                                className="small"
-                                size="sm"
-                            >
-                                Add Waypoint
-                            </Button>
-                            </Row>
-                        </Col>
+                                </InputGroup.Append>
+                            </InputGroup>
+                        </Row>
+                        <Row style={{height: '400px', overflow: 'auto'}}>
+                            <Table>
+                                <tbody>
+                                    {this.state.waypoints.map((waypoint, idx) => (
+                                        <tr>
+                                            {/* <td>{idx}</td> */}
+                                            <td>{waypoint.name}</td>
+                                            <td>{waypoint.time}</td>
+                                            <td>
+                                                <Button type="button"
+                                                    onClick={this.handleRemoveWaypoint(idx)}
+                                                    size="sm"
+                                                    className="remove"
+                                                    variant="danger" >
+                                                    Remove
+                                                </Button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
                         </Row>
                     </Form>
-
-                    {/* <h3>Your username is: {this.state.username}:{this.state.password}</h3> */}
                 </Container>
             </React.Fragment>
         );
