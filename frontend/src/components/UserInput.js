@@ -33,9 +33,11 @@ export default class UserInput extends Component {
             newWaypointNameValid: false,
             newWaypointTimeValid: false,
             waypoints: [],
+            checkedModes: new Map(),
         };
         this.handleSubmit = this.handleSubmit.bind(this);
         this.validateNewWaypoint = this.validateNewWaypoint.bind(this);
+        this.handleCheckboxChange = this.handleCheckboxChange.bind(this);
     }
 
     handleSubmit(event) {
@@ -46,6 +48,7 @@ export default class UserInput extends Component {
         data.set('departure', this.refs.departure.state.value);
         data.set('waypoints', this.state.waypoints.map((w) => w.name).join('|'));
         data.set('waypoints-time', this.state.waypoints.map((w) => w.time).join('|'));
+        data.set('lookup-mode', JSON.stringify([...this.state.checkedModes]));
         this.props.submit(data);
     }
 
@@ -53,7 +56,12 @@ export default class UserInput extends Component {
         let newelement = { name: this.state.newWaypointName, time: this.state.newWaypointTime }
 
         this.setState(prevState => ({
-            waypoints: [...prevState.waypoints, newelement]
+            waypoints: [...prevState.waypoints, newelement],
+            newWaypointName: '',
+            newWaypointTime: '',
+            newWaypointValid: false,
+            newWaypointNameValid: false,
+            newWaypointTimeValid: false,
         }));
     };
 
@@ -70,6 +78,7 @@ export default class UserInput extends Component {
         switch (fieldName) {
             case 'newWaypointTime':
                 timeValid = /^(\d+h)?[ ]?(\d+m)?$/.test(value);
+                timeValid = timeValid && value.length > 1;
                 this.setState({ newWaypointTimeValid: timeValid });
                 break;
             case 'newWaypointName':
@@ -87,6 +96,13 @@ export default class UserInput extends Component {
         const value = e.target.value;
         this.setState({ [name]: value });
         this.validateNewWaypoint(name, value);
+    }
+
+    handleCheckboxChange(e) {
+        const item = e.target.id;
+        const isChecked = e.target.checked;
+        this.setState(prevState => ({ checkedModes: prevState.checkedModes.set(item, isChecked) }));
+        console.log(this.state.checkedModes)
     }
 
     render() {
@@ -128,7 +144,9 @@ export default class UserInput extends Component {
                                     {TRANSPORT_TYPE.map(type => (
                                         <Form.Check type='checkbox'
                                             id={`${type}`}
-                                            label={`${type}`} />
+                                            label={type.charAt(0).toUpperCase() + type.slice(1)}
+                                            checked={this.state.checkedModes.get(type)} 
+                                            onChange={this.handleCheckboxChange} />
                                     ))}
                                 </Col>
                             </Form.Group>
@@ -144,7 +162,7 @@ export default class UserInput extends Component {
                                     ref="newWaypointName"
                                     style={{ flexGrow: '2' }}
                                     placeholder='Waypoint name'
-                                    value={this.state.newWaypoint}
+                                    value={this.state.newWaypointName}
                                     onChange={(event) => this.handleUserWaypointInput(event)}
                                     isValid={this.state.newWaypointNameValid} />
                                 <OverlayTrigger key="top"
