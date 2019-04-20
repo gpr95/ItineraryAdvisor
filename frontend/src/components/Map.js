@@ -22,7 +22,8 @@ const MyMapComponent = compose(
 )(props => (
     <GoogleMap defaultZoom={8} defaultCenter={{ lat: 52.237, lng: 21.018 }}>
         <Polyline
-            path={props.pathCoordinates}
+            // path={props.pathCoordinates}
+            path={props.overviewPolyline}
             geodesic={true}
             options={{
                 strokeColor: "#ff2527",

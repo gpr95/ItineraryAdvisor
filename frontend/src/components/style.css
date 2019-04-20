@@ -18,4 +18,8 @@ body,
 
 form .find {
     width: 100%;
- }
+}
+
+.rbt-input-main {
+    border-right-width: 0px;
+}

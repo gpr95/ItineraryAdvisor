@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/kr/pretty"
 	"googlemaps.github.io/maps"
 )
 
@@ -31,11 +32,11 @@ type Configuration struct {
 type GoogleCustomRouteRequest struct {
 	Origin                   string
 	Destination              string
-	Mode                     string
+	Mode                     []string
 	DepartureTime            string
 	ArrivalTime              string
-	Waypoints                string
-	WaypointsTime            string
+	Waypoints                []string
+	WaypointsTime            []string
 	Language                 string
 	Region                   string
 	TransitMode              string
@@ -107,16 +108,17 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 		ArrivalTime:   request.ArrivalTime,
 		Language:      request.Language,
 		Region:        request.Region,
+		Waypoints:     request.Waypoints,
 	}
 
-	lookupMode(request.Mode, r)
-	lookupMode(request.Mode, r)
+	if len(request.Mode) > 0 {
+		lookupMode(request.Mode[0], r)
+	} else {
+		lookupMode("", r)
+	}
+
 	lookupTransitRoutingPreference(request.TransitRoutingPreference, r)
 	lookupTrafficModel(request.TrafficModel, r)
-
-	if request.Waypoints != "" {
-		r.Waypoints = strings.Split(request.Waypoints, "|")
-	}
 
 	if request.TransitMode != "" {
 		for _, t := range strings.Split(request.TransitMode, "|") {
@@ -138,7 +140,7 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 	routes, _, err := client.Directions(context.Background(), r)
 	check(err)
 
-	// fmt.Printf("%# v", pretty.Formatter(routes))
+	fmt.Printf("%# v", pretty.Formatter(routes))
 	// fmt.Printf("%# v", pretty.Formatter(waypoints))
 	return routes
 

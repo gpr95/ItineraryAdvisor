@@ -2,57 +2,28 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gpr95/ItineraryAdvisor/trip"
-	"net/url"
-	"strings"
+	"github.com/kr/pretty"
+	// "github.com/kr/pretty"
 )
 
-func parseRequest(clientRequest url.Values, googleRequest *trip.GoogleCustomRouteRequest) {
+type place struct {
+	Name         string
+	OpeningHours string
+	Time         string
+}
 
-	for key, value := range clientRequest {
-		fmt.Println(key, value)
-		if value[0] == "undefined" || value[0] == "null" {
-			continue
-		}
-
-		switch key {
-		case "origin":
-			googleRequest.Origin = value[0]
-		case "destination":
-			googleRequest.Destination = value[0]
-		case "mode":
-			googleRequest.Mode = value[0]
-		case "departure":
-			googleRequest.DepartureTime = value[0]
-		case "arrival":
-			googleRequest.ArrivalTime = value[0]
-		case "waypoints":
-			googleRequest.Waypoints = strings.Join(value, "|")
-		case "waypoints-time":
-			googleRequest.WaypointsTime = strings.Join(value, "|")
-		}
-	}
-
+var places = []place{
+	place{Name: "Warszawa", OpeningHours: "10:00-20:00", Time: "1h"},
+	place{Name: "Gdańsk", OpeningHours: "11:00-20:00", Time: "7h"},
+	place{Name: "Suwałki", OpeningHours: "13:00-20:00", Time: "6h"},
+	place{Name: "Karków", OpeningHours: "12:00-20:00", Time: "3h"},
 }
 
 func main() {
-
-	request := trip.GoogleCustomRouteRequest{
-		Origin:                   "",
-		Destination:              "",
-		Mode:                     "",
-		DepartureTime:            "",
-		ArrivalTime:              "",
-		Waypoints:                "",
-		WaypointsTime:            "",
-		Language:                 "PL",
-		Region:                   "",
-		TransitMode:              "",
-		TransitRoutingPreference: "",
-		TrafficModel:             "",
-	}
 
 	router := gin.Default()
 
@@ -64,13 +35,16 @@ func main() {
 	{
 		api.POST("/form-submit-url", func(c *gin.Context) {
 			c.Request.ParseMultipartForm(1000)
-			parseRequest(c.Request.PostForm, &request)
-
-			var googleResponse = trip.Route(request)
-			var response = trip.GetCoordinatesAndInfoFromRoute(googleResponse)
+			request := trip.ParseFrontendRequest(c.Request.PostForm)
+			googleResponse := trip.Route(request)
+			response := trip.GetCoordinatesAndInfoFromRoute(googleResponse)
 			// fmt.Printf("%# v", pretty.Formatter(response))
 
 			c.JSON(200, response)
+		})
+		api.GET("/places", func(c *gin.Context) {
+			fmt.Printf("%# v", pretty.Formatter(places))
+			c.JSON(200, places)
 		})
 	}
 
