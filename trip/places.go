@@ -18,7 +18,7 @@ type GoogleCustomPlacesRequest struct {
 	Fields    string
 }
 
-func Place(request GoogleCustomPlacesRequest) {
+func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
 	client := getGoogleClient()
 
 	r := &maps.FindPlaceFromTextRequest{
@@ -29,8 +29,16 @@ func Place(request GoogleCustomPlacesRequest) {
 	place, err := client.FindPlaceFromText(context.Background(), r)
 	check(err)
 
-	fmt.Printf("%# v", pretty.Formatter(place))
-	fmt.Printf("%# v", pretty.Formatter(place.Candidates[0].Geometry))
+
+	detailPlaceRequest := &maps.PlaceDetailsRequest{
+		PlaceID: place.Candidates[0].PlaceID,
+	}
+	placeDetail, err := client.PlaceDetails(context.Background(), detailPlaceRequest)
+
+
+	fmt.Printf("%# v", pretty.Formatter(placeDetail))
+
+	return placeDetail
 }
 
 func lookupInputType(inputType string) maps.FindPlaceFromTextInputType {

@@ -62,6 +62,9 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 	return output
 }
 
+
+
+
 // ParseFrontendRequest parses frontend request, and returns GoogleCustomRouteRequest
 func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 
