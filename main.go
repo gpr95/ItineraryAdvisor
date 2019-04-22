@@ -17,10 +17,10 @@ type place struct {
 }
 
 var places = []place{
-	place{Name: "Warszawa", OpeningHours: "10:00-20:00", Time: "1h"},
-	place{Name: "Gdańsk", OpeningHours: "11:00-20:00", Time: "7h"},
-	place{Name: "Suwałki", OpeningHours: "13:00-20:00", Time: "6h"},
-	place{Name: "Karków", OpeningHours: "12:00-20:00", Time: "3h"},
+	place{Name: "Grób nieznanego żołnierza Warszawa", OpeningHours: "10:00-20:00", Time: "1h"},
+	place{Name: "Muzeum więzienia Pawiak Warszawa", OpeningHours: "11:00-20:00", Time: "7h"},
+	place{Name: "Kino Luna Warszawa", OpeningHours: "13:00-20:00", Time: "6h"},
+	place{Name: "Fort Legionów Warszawa", OpeningHours: "12:00-20:00", Time: "3h"},
 }
 
 func main() {

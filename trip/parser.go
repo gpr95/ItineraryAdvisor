@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"strconv"
 	"time"
 
 	"googlemaps.github.io/maps"
@@ -34,8 +35,12 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 	var output FrontendResponse
 	for _, route := range routes {
 		output.OverviewPolyline = route.OverviewPolyline
+		meters := int(0)
 		for _, leg := range route.Legs {
-			output.Distance = leg.Distance.HumanReadable
+			fmt.Println("Leg distance -> " + leg.Distance.HumanReadable)
+			meters = leg.Distance.Meters + meters
+			fmt.Println("Total distance -> " + strconv.Itoa(meters) + " m")
+
 			fmt.Println("Leg duration -> " + leg.Duration.String())
 			output.Duration = output.Duration + leg.Duration
 			fmt.Println("Total duration -> " + output.Duration.String())
@@ -45,6 +50,13 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 				output.Route = append(output.Route, step.StartLocation)
 				output.Route = append(output.Route, step.EndLocation)
 			}
+		}
+		output.Distance = strconv.Itoa(meters) + " m"
+		if len(output.Distance) > 3 {
+			strMeters := output.Distance[len(output.Distance) - 5:len(output.Distance) - 1]
+			strKm := output.Distance[0:len(output.Distance) - 5]
+
+			output.Distance = strKm + " km " + strMeters + " m"
 		}
 	}
 	return output
@@ -77,8 +89,6 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 		switch key {
 		case "origin":
 			googleRequest.Origin = value[0]
-		case "destination":
-			googleRequest.Destination = value[0]
 		case "lookup-mode":
 			lookupModeList := []lookupModeStruct{}
 			json.Unmarshal([]byte(value[0]), &lookupModeList)
@@ -98,6 +108,7 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 				googleRequest.Waypoints = append(googleRequest.Waypoints, value.Name)
 				googleRequest.WaypointsTime = append(googleRequest.WaypointsTime, value.Time)
 			}
+			googleRequest.Destination = googleRequest.Waypoints[len(googleRequest.Waypoints)-1]
 		}
 	}
 	return googleRequest
