@@ -62,7 +62,7 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 	return output
 }
 
-// ParseFrontendRequest parses fronend request, and returns GoogleCustomRouteRequest
+// ParseFrontendRequest parses frontend request, and returns GoogleCustomRouteRequest
 func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 
 	googleRequest := GoogleCustomRouteRequest{
@@ -90,8 +90,8 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 		case "origin":
 			googleRequest.Origin = value[0]
 		case "lookup-mode":
-			lookupModeList := []lookupModeStruct{}
-			json.Unmarshal([]byte(value[0]), &lookupModeList)
+			var lookupModeList []lookupModeStruct
+			_ = json.Unmarshal([]byte(value[0]), &lookupModeList)
 			for _, value := range lookupModeList {
 				if value.Used {
 					googleRequest.Mode = append(googleRequest.Mode, value.Name)
@@ -102,8 +102,8 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 		case "arrival":
 			googleRequest.ArrivalTime = value[0]
 		case "waypoints":
-			waypointList := []waypoint{}
-			json.Unmarshal([]byte(value[0]), &waypointList)
+			var waypointList []waypoint
+			_ = json.Unmarshal([]byte(value[0]), &waypointList)
 			for _, value := range waypointList {
 				googleRequest.Waypoints = append(googleRequest.Waypoints, value.Name)
 				googleRequest.WaypointsTime = append(googleRequest.WaypointsTime, value.Time)
