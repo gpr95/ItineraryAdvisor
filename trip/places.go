@@ -2,10 +2,10 @@ package trip
 
 import (
 	"context"
-	"fmt"
 	"log"
+	"strings"
+	"time"
 
-	"github.com/kr/pretty"
 	"googlemaps.github.io/maps"
 )
 
@@ -36,9 +36,29 @@ func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
 	placeDetail, err := client.PlaceDetails(context.Background(), detailPlaceRequest)
 
 
-	fmt.Printf("%# v", pretty.Formatter(placeDetail))
+	//fmt.Printf("%# v", pretty.Formatter(placeDetail))
+	current := time.Now()
+
+	println("Opening hours of: " + placeDetail.Name + " at current week day : " + getOpeningHours(placeDetail, current))
 
 	return placeDetail
+}
+
+func getFormattedAddress(place maps.PlaceDetailsResult) string{
+	return place.FormattedAddress
+}
+
+func getOpeningHours(place maps.PlaceDetailsResult, departureTime time.Time) string {
+	weekDay := departureTime.Weekday().String()
+	println(weekDay)
+
+	for _, day := range place.OpeningHours.WeekdayText {
+		if strings.Contains(day, weekDay) {
+			return strings.Replace(day, weekDay + ": ", "", 1)
+		}
+	}
+
+	return ""
 }
 
 func lookupInputType(inputType string) maps.FindPlaceFromTextInputType {
