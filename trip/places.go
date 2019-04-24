@@ -2,49 +2,66 @@ package trip
 
 import (
 	"context"
-	"fmt"
 	"log"
-	"os"
+	"strings"
+	"time"
 
-	"github.com/kr/pretty"
 	"googlemaps.github.io/maps"
 )
 
-//Input                     "Input", "", "The text Input specifying which place to search for (for example, a name, address, or phone number)."
-//InputType                 "InputType", "", "The type of Input. This can be one of either textquery or phonenumber."
-//Fields                    "Fields", "", "Comma seperated list of Fields"
+//Input       "The text Input specifying which place to search for (for example, a name, address, or phone number)."
+//InputType   "The type of Input. This can be one of either textquery or phonenumber."
+//Fields      "Comma seperated list of Fields"
 type GoogleCustomPlacesRequest struct {
 	Input     string
 	InputType string
 	Fields    string
 }
 
-func Place(request GoogleCustomPlacesRequest) {
-	configuration, _ := getSecrets()
-
-	var client *maps.Client
-	var err error
-	if configuration.GoogleAPIKey != "" {
-		client, err = maps.NewClient(maps.WithAPIKey(configuration.GoogleAPIKey), maps.WithRateLimit(2))
-	} else {
-		_, err = fmt.Fprintln(os.Stderr, "Please specify an API Key.")
-		os.Exit(2)
-	}
-	check(err)
+func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
+	client := getGoogleClient()
 
 	r := &maps.FindPlaceFromTextRequest{
 		Input:     request.Input,
-		InputType: parseInputType(request.InputType),
+		InputType: lookupInputType(request.InputType),
 	}
 
 	place, err := client.FindPlaceFromText(context.Background(), r)
 	check(err)
 
-	fmt.Printf("%# v", pretty.Formatter(place))
-	fmt.Printf("%# v", pretty.Formatter(place.Candidates[0].Geometry))
+
+	detailPlaceRequest := &maps.PlaceDetailsRequest{
+		PlaceID: place.Candidates[0].PlaceID,
+	}
+	placeDetail, err := client.PlaceDetails(context.Background(), detailPlaceRequest)
+
+
+	//fmt.Printf("%# v", pretty.Formatter(placeDetail))
+	current := time.Now()
+
+	println("Opening hours of: " + placeDetail.Name + " at current week day : " + getOpeningHours(placeDetail, current))
+
+	return placeDetail
 }
 
-func parseInputType(inputType string) maps.FindPlaceFromTextInputType {
+func getFormattedAddress(place maps.PlaceDetailsResult) string{
+	return place.FormattedAddress
+}
+
+func getOpeningHours(place maps.PlaceDetailsResult, departureTime time.Time) string {
+	weekDay := departureTime.Weekday().String()
+	println(weekDay)
+
+	for _, day := range place.OpeningHours.WeekdayText {
+		if strings.Contains(day, weekDay) {
+			return strings.Replace(day, weekDay + ": ", "", 1)
+		}
+	}
+
+	return ""
+}
+
+func lookupInputType(inputType string) maps.FindPlaceFromTextInputType {
 	var it maps.FindPlaceFromTextInputType
 	switch inputType {
 	case "textquery":

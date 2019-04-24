@@ -57,27 +57,22 @@ export default class UserInput extends Component {
                 <Container>
                     <Form onSubmit={this.handleSubmit}>
                         <Row>
-                            <Form.Label>Origin</Form.Label>
-                            <Form.Control defaultValue="Chełm"
+                            <Form.Label>Startin point</Form.Label>
+                            <Form.Control defaultValue="Pałac kultury i Nauki"
                                 id="origin"
                                 name="origin"
                             />
                         </Row>
-                        <Row>
-                            <Form.Label>Destination</Form.Label>
-                            <Form.Control defaultValue="Warszawa"
-                                id="destination"
-                                name="destination" />
-                        </Row>
+                        <br/>
                         <Row>
                             <Col>
                                 <Form.Group>
-                                    <Form.Label>Departure</Form.Label>
+                                    <Form.Label>Departure</Form.Label>{'\u00A0'}
                                     <TimePicker ref="departure" />
                                 </Form.Group>
                             </Col><Col>
                                 <Form.Group>
-                                    <Form.Label>Arrival</Form.Label>
+                                    <Form.Label>Arrival</Form.Label>{'\u00A0'}
                                     <TimePicker ref="arrival" />
                                 </Form.Group>
                             </Col>

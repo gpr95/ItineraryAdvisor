@@ -12,12 +12,13 @@ Put your Google API KEY in file
 $PROJECT_ROOT/frontend/src/config/config.secret.json
 ```
 3trd party libraries:
-```
-$ go get github.com/tkanos/gonfig
-$ go get github.com/tkanos/gonfig
-$ go get googlemaps.github.io/maps
-$ go get github.com/gin-gonic/gin
-$ go get github.com/gin-gonic/contrib/static
+```$xslt
+go get github.com/gin-gonic/contrib/static
+go get googlemaps.github.io/maps
+go get github.com/gin-gonic/gin
+go get github.com/gpr95/ItineraryAdvisor/trip
+go get github.com/kr/pretty
+go get github.com/tkanos/gonfig
 ```
 Run:
 ```
@@ -41,5 +42,5 @@ $ npm start
 // Frontend will be avaliable on :8000 - make sure that go backend is running
 $ cd frontend
 $ npm install
-$ npm dist
+$ npm run dist
 ```

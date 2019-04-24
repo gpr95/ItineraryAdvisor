@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gpr95/ItineraryAdvisor/trip"
 	"github.com/kr/pretty"
-	// "github.com/kr/pretty"
 )
 
 type place struct {
@@ -17,10 +17,10 @@ type place struct {
 }
 
 var places = []place{
-	place{Name: "Warszawa", OpeningHours: "10:00-20:00", Time: "1h"},
-	place{Name: "Gdańsk", OpeningHours: "11:00-20:00", Time: "7h"},
-	place{Name: "Suwałki", OpeningHours: "13:00-20:00", Time: "6h"},
-	place{Name: "Karków", OpeningHours: "12:00-20:00", Time: "3h"},
+	{Name: "Grób nieznanego żołnierza Warszawa", OpeningHours: "10:00-20:00", Time: "1h"},
+	{Name: "Muzeum więzienia Pawiak Warszawa", OpeningHours: "11:00-20:00", Time: "7h"},
+	{Name: "Kino Luna Warszawa", OpeningHours: "13:00-20:00", Time: "6h"},
+	{Name: "Fort Legionów Warszawa", OpeningHours: "12:00-20:00", Time: "3h"},
 }
 
 func main() {
@@ -33,15 +33,22 @@ func main() {
 	// Setup route group for the API
 	api := router.Group("/api")
 	{
-		api.POST("/form-submit-url", func(c *gin.Context) {
-			c.Request.ParseMultipartForm(1000)
-			request := trip.ParseFrontendRequest(c.Request.PostForm)
-			googleResponse := trip.Route(request)
+		// Serve form for finding route
+		api.POST("/form-submit-url", func(context *gin.Context) {
+			// parses a request body as multipart/form-data.
+			err := context.Request.ParseMultipartForm(1000)
+			if err != http.ErrNotMultipart {
+				println("error on parse multipart form map: %v", err)
+			}
+
+			googleResponse := trip.Route(trip.ParseFrontendRequest(context.Request.PostForm))
 			response := trip.GetCoordinatesAndInfoFromRoute(googleResponse)
 			// fmt.Printf("%# v", pretty.Formatter(response))
 
-			c.JSON(200, response)
+			context.JSON(200, response)
 		})
+
+		// Serve default places
 		api.GET("/places", func(c *gin.Context) {
 			fmt.Printf("%# v", pretty.Formatter(places))
 			c.JSON(200, places)
@@ -49,5 +56,5 @@ func main() {
 	}
 
 	// Start and run the server
-	router.Run(":8000")
+	_ = router.Run(":8000")
 }
