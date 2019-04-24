@@ -7,7 +7,7 @@ export default class RouteInfo extends Component {
 
     render() {
         let tableContent;
-        if (this.props.routeInfo.Distance != undefined) {
+        if (this.props.routeInfo.Distance !== undefined) {
             tableContent = <tbody>
                 <tr>
                     <td>Distance</td>

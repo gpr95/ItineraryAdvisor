@@ -4,9 +4,6 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
-import InputGroup from 'react-bootstrap/InputGroup';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
 import TimePicker from 'rc-time-picker';
 
 import 'rc-time-picker/assets/index.css';
@@ -19,7 +16,6 @@ import 'react-dom/cjs/react-dom.production.min.js'
 import 'react-bootstrap/dist/react-bootstrap.min.js'
 
 import "./style.css";
-import Table from 'react-bootstrap/Table';
 
 let TRANSPORT_TYPE = ['driving', 'walking', 'bicycling', 'transit']
 
