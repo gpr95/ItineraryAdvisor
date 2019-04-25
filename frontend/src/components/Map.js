@@ -4,7 +4,7 @@ import {
     withScriptjs,
     withGoogleMap,
     GoogleMap,
-    // Marker,
+    Marker,
     Polyline
 } from "react-google-maps";
 import * as config from '../config/config.secret.json'
@@ -22,7 +22,6 @@ const MyMapComponent = compose(
 )(props => (
     <GoogleMap defaultZoom={14} defaultCenter={{ lat: 52.237, lng: 21.018 }}>
         <Polyline
-            // path={props.pathCoordinates}
             path={props.overviewPolyline}
             geodesic={true}
             options={{
@@ -37,6 +36,7 @@ const MyMapComponent = compose(
                 ]
             }}
         />
+        {props.isMarkerShown && <Marker position={props.markerPosition} />}
     </GoogleMap>
 ));
 

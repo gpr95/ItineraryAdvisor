@@ -89,7 +89,11 @@ export default class Waypoints extends Component {
 
             let selectedWaypoint = this.props.places.find(o => { return o.Name === e[0] })
             let isNewWaypointValid = false
-            if (selectedWaypoint == undefined) { return }
+            if (selectedWaypoint == undefined) {
+                this.setState({ newWaypointName: e });
+                this.validateNewWaypoint('newWaypointName', e);
+                return
+            }
             isNewWaypointValid = this.validateNewWaypoint('newWaypointName', selectedWaypoint.Name);
             isNewWaypointValid = isNewWaypointValid && this.validateNewWaypoint('newWaypointTime', selectedWaypoint.Time);
             isNewWaypointValid = isNewWaypointValid && this.validateNewWaypoint('newWaypointOpeningHours', selectedWaypoint.OpeningHours);
@@ -124,6 +128,7 @@ export default class Waypoints extends Component {
                             value={this.state.newWaypointName}
                             selected={this.state.selectedWaypoint}
                             onChange={(event) => this.handleUserWaypointInput(event)}
+                            onInputChange={(event) => this.handleUserWaypointInput(event)}
                             isValid={this.state.newWaypointNameValid} />
                         <OverlayTrigger key="top"
                             placement="top"

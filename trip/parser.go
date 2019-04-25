@@ -12,12 +12,17 @@ import (
 
 // FrontendResponse is struct that frontend will understand
 type FrontendResponse struct {
-	Route            []maps.LatLng
+	Route            []Step
 	Distance         string
 	Duration         time.Duration
 	ArrivalTime      time.Time
 	DepartureTime    time.Time
 	OverviewPolyline maps.Polyline
+}
+
+type Step struct {
+	Location    maps.LatLng
+	Instruction string
 }
 
 type waypoint struct {
@@ -47,23 +52,20 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 			output.ArrivalTime = leg.ArrivalTime
 			output.DepartureTime = leg.DepartureTime
 			for _, step := range leg.Steps {
-				output.Route = append(output.Route, step.StartLocation)
-				output.Route = append(output.Route, step.EndLocation)
+				newStep := Step{Location: step.StartLocation, Instruction: step.HTMLInstructions}
+				output.Route = append(output.Route, newStep)
 			}
 		}
 		output.Distance = strconv.Itoa(meters) + " m"
 		if len(output.Distance) > 3 {
-			strMeters := output.Distance[len(output.Distance) - 5:len(output.Distance) - 1]
-			strKm := output.Distance[0:len(output.Distance) - 5]
+			strMeters := output.Distance[len(output.Distance)-5 : len(output.Distance)-1]
+			strKm := output.Distance[0 : len(output.Distance)-5]
 
 			output.Distance = strKm + " km " + strMeters + " m"
 		}
 	}
 	return output
 }
-
-
-
 
 // ParseFrontendRequest parses frontend request, and returns GoogleCustomRouteRequest
 func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {

@@ -4,6 +4,7 @@ import RouteInfo from './RouteInfo.js';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import MyMapComponent from './Map.js';
+import Steps from './Steps.js';
 import Waypoints from './Waypoints.js';
 import moment from 'moment';
 
@@ -12,12 +13,16 @@ export default class MapContainer extends React.Component {
     componentWillMount() {
         this.setState({
             places: [],
-            routeInfo: {},
+            routeInfo: {
+                Route: [],
+            },
             waypoints: [],
         });
         this.places = []
         this.submit = this.submit.bind(this);
         this.setWaypoints = this.setWaypoints.bind(this);
+        this.setMarkerShown = this.setMarkerShown.bind(this);
+        this.setMarkerPosition = this.setMarkerPosition.bind(this);
     }
 
     componentDidMount() {
@@ -36,6 +41,11 @@ export default class MapContainer extends React.Component {
 
     submit(data) {
         console.log(data);
+        this.setState({
+            routeInfo: {
+                Route: [],
+            },
+        });
         fetch('/api/form-submit-url', {
             method: 'POST',
             body: data,
@@ -60,9 +70,18 @@ export default class MapContainer extends React.Component {
         this.setState({ waypoints: waypoints });
     }
 
+    setMarkerShown(isMarkerShown) {
+        this.setState({ isMarkerShown: isMarkerShown });
+    }
+
+    setMarkerPosition(markerPosition) {
+        console.log(markerPosition)
+        this.setState({ markerPosition: markerPosition });
+    }
+
     render() {
         return <React.Fragment>
-            <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
+            {/* <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script> */}
 
             <Row className="flex-grow-1" >
                 <Col md={3}>
@@ -71,9 +90,11 @@ export default class MapContainer extends React.Component {
                 </Col>
                 <Col md={4}>
                     <RouteInfo routeInfo={this.state.routeInfo} />
+                    <Steps routeInfo={this.state.routeInfo} markerShownFunc={this.setMarkerShown} markerPositionFunc={this.setMarkerPosition}/>
                 </Col>
                 <Col md={5} className="right-col">
-                    <MyMapComponent pathCoordinates={this.state.routeInfo.Route} overviewPolyline={this.state.routeInfo.OverviewPolyline} />
+                    <MyMapComponent overviewPolyline={this.state.routeInfo.OverviewPolyline}
+                    isMarkerShown={this.state.isMarkerShown} markerPosition={this.state.markerPosition} />
                 </Col>
             </Row>
 
