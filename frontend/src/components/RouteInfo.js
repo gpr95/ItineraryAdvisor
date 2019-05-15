@@ -32,7 +32,7 @@ export default class RouteInfo extends Component {
         return (
             <React.Fragment>
                 <Container>
-                    <Table striped bordered hover>
+                    <Table bordered hover>
                         <thead>
                             <tr>
                                 <th colSpan="2">Route Info</th>

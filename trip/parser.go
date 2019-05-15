@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/kr/pretty"
 	"googlemaps.github.io/maps"
 )
 
@@ -114,6 +115,20 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 				googleRequest.WaypointsTime = append(googleRequest.WaypointsTime, value.Time)
 			}
 			googleRequest.Destination = googleRequest.Waypoints[len(googleRequest.Waypoints)-1]
+		case "bounds":
+			var directionMap map[string]float64
+			_ = json.Unmarshal([]byte(value[0]), &directionMap)
+			bounds := maps.LatLngBounds{
+				NorthEast: maps.LatLng{
+					Lat: directionMap["north"],
+					Lng: directionMap["east"],
+				},
+				SouthWest: maps.LatLng{
+					Lat: directionMap["south"],
+					Lng: directionMap["west"],
+				},
+			}
+			fmt.Printf("%# v", pretty.Formatter(bounds))
 		}
 	}
 	return googleRequest

@@ -23,6 +23,7 @@ export default class MapContainer extends React.Component {
         this.setWaypoints = this.setWaypoints.bind(this);
         this.setMarkerShown = this.setMarkerShown.bind(this);
         this.setMarkerPosition = this.setMarkerPosition.bind(this);
+        this.setCurrentView = this.setCurrentView.bind(this)
     }
 
     componentDidMount() {
@@ -36,7 +37,6 @@ export default class MapContainer extends React.Component {
             this.setState({ places: responseData });
             // this.places = responseData
         });
-        
     }
 
     submit(data) {
@@ -75,8 +75,11 @@ export default class MapContainer extends React.Component {
     }
 
     setMarkerPosition(markerPosition) {
-        console.log(markerPosition)
         this.setState({ markerPosition: markerPosition });
+    }
+
+    setCurrentView(bounds) {
+        this.setState({ bounds: bounds });
     }
 
     render() {
@@ -85,16 +88,16 @@ export default class MapContainer extends React.Component {
 
             <Row className="flex-grow-1" >
                 <Col md={3}>
-                    <UserInput submit={this.submit} waypoints={this.state.waypoints}/>
-                    <Waypoints waypointsFunc={this.setWaypoints} places={this.state.places}/>
+                    <UserInput submit={this.submit} waypoints={this.state.waypoints} bounds={this.state.bounds} />
+                    <Waypoints waypointsFunc={this.setWaypoints} places={this.state.places} />
                 </Col>
                 <Col md={4}>
                     <RouteInfo routeInfo={this.state.routeInfo} />
-                    <Steps routeInfo={this.state.routeInfo} markerShownFunc={this.setMarkerShown} markerPositionFunc={this.setMarkerPosition}/>
+                    <Steps routeInfo={this.state.routeInfo} markerShownFunc={this.setMarkerShown} markerPositionFunc={this.setMarkerPosition} />
                 </Col>
                 <Col md={5} className="right-col">
                     <MyMapComponent overviewPolyline={this.state.routeInfo.OverviewPolyline}
-                    isMarkerShown={this.state.isMarkerShown} markerPosition={this.state.markerPosition} />
+                        isMarkerShown={this.state.isMarkerShown} markerPosition={this.state.markerPosition} setCurrentViewFunc={this.setCurrentView} />
                 </Col>
             </Row>
 

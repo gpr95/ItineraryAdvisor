@@ -1,5 +1,5 @@
 import React from "react";
-import { compose, withProps } from "recompose";
+import { compose, withProps, lifecycle } from "recompose";
 import {
     withScriptjs,
     withGoogleMap,
@@ -18,9 +18,29 @@ const MyMapComponent = compose(
         mapElement: <div style={{ height: '100%' }} />,
     }),
     withScriptjs,
-    withGoogleMap
+    withGoogleMap,
+    lifecycle({
+        componentWillMount() {
+            const refs = {}
+
+            this.setState({
+                bounds: null,
+                center: {
+                    lat: 52.237, lng: 21.018
+                },
+                markers: [],
+                onMapMounted: ref => {
+                    refs.map = ref;
+                },
+                onBoundsChanged: () => {
+                    this.props.setCurrentViewFunc(refs.map.getBounds())
+                },
+            })
+        },
+    }),
 )(props => (
-    <GoogleMap defaultZoom={14} defaultCenter={{ lat: 52.237, lng: 21.018 }}>
+    <GoogleMap defaultZoom={14} ref={props.onMapMounted} center={props.center}
+        onBoundsChanged={props.onBoundsChanged}>
         <Polyline
             path={props.overviewPolyline}
             geodesic={true}
