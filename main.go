@@ -2,28 +2,36 @@ package main
 
 import (
 	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gpr95/ItineraryAdvisor/trip"
 	"github.com/kr/pretty"
+	"net/http"
 )
 
 type place struct {
 	Name         string
 	OpeningHours string
 	Time         string
+	PlaceID		 string
 }
 
 var places = []place{
-	{Name: "Grób nieznanego żołnierza Warszawa", OpeningHours: "10:00-20:00", Time: "1h"},
-	{Name: "Muzeum więzienia Pawiak Warszawa", OpeningHours: "11:00-20:00", Time: "7h"},
-	{Name: "Kino Luna Warszawa", OpeningHours: "13:00-20:00", Time: "6h"},
-	{Name: "Fort Legionów Warszawa", OpeningHours: "12:00-20:00", Time: "3h"},
+	{Name: "Grób nieznanego żołnierza Warszawa", OpeningHours: "10:00-20:00", Time: "1h", PlaceID: "NONE"},
+	{Name: "Muzeum więzienia Pawiak Warszawa", OpeningHours: "11:00-20:00", Time: "7h", PlaceID: "NONE"},
+	{Name: "Kino Luna Warszawa", OpeningHours: "13:00-20:00", Time: "6h", PlaceID: "NONE"},
+	{Name: "Fort Legionów Warszawa", OpeningHours: "12:00-20:00", Time: "3h", PlaceID: "NONE"},
 }
 
 func main() {
+
+	//googleRequest := trip.GoogleCustomNearbySearchRequest{
+	//	 Location: "52.226106,21.026820",
+	//	 Keyword: "sklep",
+	//	 RankBy: "distance",
+	//	 PlaceTypes: "museum",
+	//}
+	//trip.NearbySearch(googleRequest)
 
 	router := gin.Default()
 

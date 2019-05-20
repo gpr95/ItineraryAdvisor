@@ -21,10 +21,18 @@ type GoogleCustomPlacesRequest struct {
 }
 
 type GoogleCustomNearbySearchRequest struct {
-	location string
-	radius uint
-	keyword string
-	rankBy string
+	Location string
+	Radius uint
+	Keyword string
+	RankBy string
+	PlaceTypes string // pipe sign separated
+}
+
+type place struct {
+	Name         string
+	OpeningHours string
+	Time         string
+	PlaceID		 string
 }
 
 func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
@@ -53,21 +61,40 @@ func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
 	return placeDetail
 }
 
-func NearbySearch(request GoogleCustomNearbySearchRequest) string {
+func NearbySearch(request GoogleCustomNearbySearchRequest) []place {
 	client := getGoogleClient()
 
 	r := &maps.NearbySearchRequest{
-		Radius:    request.radius,
-		Keyword:   request.keyword,
+		Radius:    request.Radius,
+		Keyword:   request.Keyword,
 		Language:  "PL",
 	}
-	parseLocation(request.location, r)
-	parseRankBy(request.rankBy, r)
+	parseLocation(request.Location, r)
+	parseRankBy(request.RankBy, r)
+	parsePlaceType(request.PlaceTypes, r)
 
 	resp, err := client.NearbySearch(context.Background(), r)
 	check(err)
-	fmt.Printf("%# v", pretty.Formatter(resp))
-	return ""
+
+
+	places := make([]place, 0)
+	for i:=0; i<len(resp.Results) ; i++ {
+		detailPlaceRequest := &maps.PlaceDetailsRequest{
+			PlaceID: resp.Results[i].PlaceID,
+		}
+		placeDetail, err := client.PlaceDetails(context.Background(), detailPlaceRequest)
+		places = append(places,
+			place{
+				Name:resp.Results[i].Name,
+				OpeningHours:getOpeningHours(placeDetail, time.Now()),
+				Time: "1h",
+				PlaceID:resp.Results[i].PlaceID},
+		)
+		check(err)
+	}
+
+	fmt.Printf("%# v", pretty.Formatter(places))
+	return places
 }
 
 func getFormattedAddress(place maps.PlaceDetailsResult) string{
@@ -77,6 +104,9 @@ func getFormattedAddress(place maps.PlaceDetailsResult) string{
 func getOpeningHours(place maps.PlaceDetailsResult, departureTime time.Time) string {
 	weekDay := departureTime.Weekday().String()
 	println(weekDay)
+	if place.OpeningHours == nil || len(place.OpeningHours.WeekdayText) == 0 {
+		return ""
+	}
 
 	for _, day := range place.OpeningHours.WeekdayText {
 		if strings.Contains(day, weekDay) {
