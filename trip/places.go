@@ -2,6 +2,8 @@ package trip
 
 import (
 	"context"
+	"fmt"
+	"github.com/kr/pretty"
 	"log"
 	"strings"
 	"time"
@@ -16,6 +18,13 @@ type GoogleCustomPlacesRequest struct {
 	Input     string
 	InputType string
 	Fields    string
+}
+
+type GoogleCustomNearbySearchRequest struct {
+	location string
+	radius uint
+	keyword string
+	rankBy string
 }
 
 func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
@@ -42,6 +51,23 @@ func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
 	println("Opening hours of: " + placeDetail.Name + " at current week day : " + getOpeningHours(placeDetail, current))
 
 	return placeDetail
+}
+
+func NearbySearch(request GoogleCustomNearbySearchRequest) string {
+	client := getGoogleClient()
+
+	r := &maps.NearbySearchRequest{
+		Radius:    request.radius,
+		Keyword:   request.keyword,
+		Language:  "PL",
+	}
+	parseLocation(request.location, r)
+	parseRankBy(request.rankBy, r)
+
+	resp, err := client.NearbySearch(context.Background(), r)
+	check(err)
+	fmt.Printf("%# v", pretty.Formatter(resp))
+	return ""
 }
 
 func getFormattedAddress(place maps.PlaceDetailsResult) string{
@@ -72,4 +98,67 @@ func lookupInputType(inputType string) maps.FindPlaceFromTextInputType {
 		log.Fatalf("Unknown Input type '%s'", inputType)
 	}
 	return it
+}
+
+func parseLocation(location string, r *maps.NearbySearchRequest) {
+	if location != "" {
+		l, err := maps.ParseLatLng(location)
+		check(err)
+		r.Location = &l
+	}
+}
+
+
+func parsePriceLevel(priceLevel string) maps.PriceLevel {
+	switch priceLevel {
+	case "0":
+		return maps.PriceLevelFree
+	case "1":
+		return maps.PriceLevelInexpensive
+	case "2":
+		return maps.PriceLevelModerate
+	case "3":
+		return maps.PriceLevelExpensive
+	case "4":
+		return maps.PriceLevelVeryExpensive
+	default:
+		log.Fatalf(fmt.Sprintf("Unknown price level: '%s'", priceLevel))
+	}
+	return maps.PriceLevelFree
+}
+
+func parsePriceLevels(minPrice string, maxPrice string, r *maps.NearbySearchRequest) {
+	if minPrice != "" {
+		r.MinPrice = parsePriceLevel(minPrice)
+	}
+
+	if maxPrice != "" {
+		r.MaxPrice = parsePriceLevel(minPrice)
+	}
+}
+
+func parseRankBy(rankBy string, r *maps.NearbySearchRequest) {
+	switch rankBy {
+	case "prominence":
+		r.RankBy = maps.RankByProminence
+		return
+	case "distance":
+		r.RankBy = maps.RankByDistance
+		return
+	case "":
+		return
+	default:
+		log.Fatalf(fmt.Sprintf("Unknown rank by: \"%v\"", rankBy))
+	}
+}
+
+func parsePlaceType(placeType string, r *maps.NearbySearchRequest) {
+	if placeType != "" {
+		t, err := maps.ParsePlaceType(placeType)
+		if err != nil {
+			log.Fatalf(fmt.Sprintf("Unknown place type \"%v\"", placeType))
+		}
+
+		r.Type = t
+	}
 }
