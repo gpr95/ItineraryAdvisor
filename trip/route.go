@@ -51,7 +51,7 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 		Waypoints:     request.Waypoints,
 	}
 
-	fillGraph(request.Waypoints, request.WaypointsTime)
+	// fillGraph(request.Waypoints, request.WaypointsTime)
 
 	// Set default mode as first selected
 	if len(request.Mode) > 0 {
