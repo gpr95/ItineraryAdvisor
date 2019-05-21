@@ -23,7 +23,6 @@ type GoogleCustomPlacesRequest struct {
 type GoogleCustomNearbySearchRequest struct {
 	Location string
 	Radius uint
-	Keyword string
 	RankBy string
 	PlaceTypes string // pipe sign separated
 }
@@ -66,7 +65,6 @@ func NearbySearch(request GoogleCustomNearbySearchRequest) []place {
 
 	r := &maps.NearbySearchRequest{
 		Radius:    request.Radius,
-		Keyword:   request.Keyword,
 		Language:  "PL",
 	}
 	parseLocation(request.Location, r)

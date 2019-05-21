@@ -128,6 +128,17 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 					Lng: directionMap["west"],
 				},
 			}
+			latitude :=
+				strconv.FormatFloat((directionMap["north"]+directionMap["south"])/2.0, 'f', 6, 64) +
+					","+
+					strconv.FormatFloat((directionMap["west"]+directionMap["east"])/2.0, 'f', 6, 64)
+
+			googleRequest := GoogleCustomNearbySearchRequest{
+				 Location: latitude,
+				 RankBy: "distance",
+				 PlaceTypes: "museum",
+			}
+			NearbySearch(googleRequest)
 			fmt.Printf("%# v", pretty.Formatter(bounds))
 		}
 	}
