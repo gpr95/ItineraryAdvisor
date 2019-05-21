@@ -2,11 +2,9 @@ package trip
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"strings"
 
-	"github.com/kr/pretty"
 	"googlemaps.github.io/maps"
 )
 
@@ -53,6 +51,8 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 		Waypoints:     request.Waypoints,
 	}
 
+	fillGraph(request.Waypoints, request.WaypointsTime)
+
 	// Set default mode as first selected
 	if len(request.Mode) > 0 {
 		lookupMode(request.Mode[0], r)
@@ -71,7 +71,7 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 	routes, _, err := client.Directions(context.Background(), r)
 	check(err)
 
-	fmt.Printf("%# v", pretty.Formatter(routes))
+	//fmt.Printf("%# v", pretty.Formatter(routes))
 	return routes
 
 }

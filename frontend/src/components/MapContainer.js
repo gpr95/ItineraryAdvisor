@@ -32,7 +32,8 @@ export default class MapContainer extends React.Component {
     }
 
     getWaypoints() {
-        fetch('/api/places?bounds=' + this.state.bounds, {
+        console.log(Object.entries(this.state.bounds.toJSON()).map(([key, v]) => "" + key + "=" + v).join('&'))
+        fetch('/api/places?&' + Object.entries(this.state.bounds.toJSON()).map(([key, v]) => "" + key + "=" + v).join('&'), {
             method: 'GET',
         })
         .then((response) => {

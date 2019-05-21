@@ -65,6 +65,7 @@ func NearbySearch(request GoogleCustomNearbySearchRequest) []place {
 
 	r := &maps.NearbySearchRequest{
 		Radius:    request.Radius,
+		Keyword: request.PlaceTypes,
 		Language:  "PL",
 	}
 	parseLocation(request.Location, r)
@@ -79,6 +80,7 @@ func NearbySearch(request GoogleCustomNearbySearchRequest) []place {
 	for i:=0; i<len(resp.Results) ; i++ {
 		detailPlaceRequest := &maps.PlaceDetailsRequest{
 			PlaceID: resp.Results[i].PlaceID,
+			Language: "PL",
 		}
 		placeDetail, err := client.PlaceDetails(context.Background(), detailPlaceRequest)
 		places = append(places,
@@ -101,18 +103,32 @@ func getFormattedAddress(place maps.PlaceDetailsResult) string{
 
 func getOpeningHours(place maps.PlaceDetailsResult, departureTime time.Time) string {
 	weekDay := departureTime.Weekday().String()
-	println(weekDay)
+	weekdayMap := map[string]string{
+		"Monday": "poniedziałek",
+		"Tuesday":   "wtorek",
+		"Wednesday": "środa",
+		"Thursday": "czwartek",
+		"Friday": "piątek",
+		"Saturday": "sobota",
+		"Sunday": "niedziela",
+	}
 	if place.OpeningHours == nil || len(place.OpeningHours.WeekdayText) == 0 {
 		return ""
 	}
 
+	//fmt.Printf("%# v", pretty.Formatter(place.OpeningHours))
 	for _, day := range place.OpeningHours.WeekdayText {
-		if strings.Contains(day, weekDay) {
-			return strings.Replace(day, weekDay + ": ", "", 1)
+		if strings.Contains(day,  weekdayMap[weekDay]) {
+			openingHours := strings.Replace(day, weekdayMap[weekDay] + ": ", "", 1)
+			replacedDash := strings.Replace(openingHours, "–", "-", 1)
+			if openingHours == "Zamknięte" {
+				return "00:00-00:00"
+			}
+			return replacedDash
 		}
 	}
 
-	return ""
+	return "00:00-00:00"
 }
 
 func lookupInputType(inputType string) maps.FindPlaceFromTextInputType {

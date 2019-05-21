@@ -3,6 +3,7 @@ package trip
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"net/url"
 	"strconv"
 	"time"
@@ -143,4 +144,23 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 		}
 	}
 	return googleRequest
+}
+
+func ParseFetchPlacesRequest(c *gin.Context) GoogleCustomNearbySearchRequest {
+	q := c.Request.URL.Query()
+	north, _ := strconv.ParseFloat(q["north"][0],64)
+	south, _ := strconv.ParseFloat(q["south"][0],64)
+	west, _ := strconv.ParseFloat(q["west"][0],64)
+	east, _ := strconv.ParseFloat(q["east"][0],64)
+	println(north)
+	latitude :=
+		strconv.FormatFloat((north+south)/2.0, 'f', 6, 64) +
+			","+
+			strconv.FormatFloat((west+east)/2.0, 'f', 6, 64)
+	println(latitude)
+	return GoogleCustomNearbySearchRequest{
+		Location: latitude,
+		RankBy: "distance",
+		PlaceTypes: "museum",
+	}
 }
