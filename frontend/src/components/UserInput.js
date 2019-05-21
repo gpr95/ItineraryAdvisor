@@ -39,7 +39,6 @@ export default class UserInput extends Component {
         // data.set('waypoints-time', this.props.waypoints.map((w) => w.time).join('|'));
         data.set('waypoints', JSON.stringify([...this.props.waypoints]));
         data.set('lookup-mode', JSON.stringify([...this.state.checkedModes]));
-        data.set('bounds', JSON.stringify(this.props.bounds));
         this.props.submit(data);
     }
 

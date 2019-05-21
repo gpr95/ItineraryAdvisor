@@ -20,6 +20,12 @@ form .find {
     width: 100%;
 }
 
+.fullWidth {
+    margin-top: 0.5rem;
+    width: 100%;
+}
+
+
 .rbt-input-main {
     border-right-width: 0px;
 }

@@ -6,6 +6,7 @@ import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import Container from 'react-bootstrap/Container';
 import { Typeahead } from 'react-bootstrap-typeahead';
 
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -116,10 +117,15 @@ export default class Waypoints extends Component {
         return (
             <React.Fragment>
                 <Row>
+                    <Container>
+                        <Button className="fullWidth" onClick={this.props.getWaypoints}>Fetch Waypoints for this area</Button>
+                    </Container>
+                </Row>
+                <Row>
                     <Form.Label>Waypoints</Form.Label>
                     <InputGroup className="mb-3 waypoint" >
                         <Typeahead
-                        id="test"
+                            id="test"
                             name="newWaypointName"
                             ref={(typeahead) => this.typeahead = typeahead}
                             options={this.props.places.map(o => { return o.Name })}

@@ -24,11 +24,17 @@ export default class MapContainer extends React.Component {
         this.setMarkerShown = this.setMarkerShown.bind(this);
         this.setMarkerPosition = this.setMarkerPosition.bind(this);
         this.setCurrentView = this.setCurrentView.bind(this)
+        this.getWaypoints = this.getWaypoints.bind(this)
     }
 
     componentDidMount() {
         // What should happen when container is loaded?
-        fetch('/api/places')
+    }
+
+    getWaypoints() {
+        fetch('/api/places?bounds=' + this.state.bounds, {
+            method: 'GET',
+        })
         .then((response) => {
             return response.json()
         })
@@ -88,8 +94,8 @@ export default class MapContainer extends React.Component {
 
             <Row className="flex-grow-1" >
                 <Col md={3}>
-                    <UserInput submit={this.submit} waypoints={this.state.waypoints} bounds={this.state.bounds} />
-                    <Waypoints waypointsFunc={this.setWaypoints} places={this.state.places} />
+                    <UserInput submit={this.submit} waypoints={this.state.waypoints} />
+                    <Waypoints waypointsFunc={this.setWaypoints} places={this.state.places} getWaypoints={this.getWaypoints} />
                 </Col>
                 <Col md={4}>
                     <RouteInfo routeInfo={this.state.routeInfo} />
