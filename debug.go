@@ -16,13 +16,37 @@
 // Documentation: https://developers.google.com/places/web-service/search#TextSearchRequests
 package main
 
-import "github.com/gpr95/ItineraryAdvisor/trip"
+import (
+	"fmt"
+	"github.com/gpr95/ItineraryAdvisor/trip"
+	"os"
+	"strings"
+)
 
 func main() {
-	request := trip.GoogleCustomPlacesRequest{
-		Input: "złote tarasy",
-		InputType : "textquery",
-		Fields: "",
+	fileName := "testfile"
+	graphName := "testGraph"
+	trip.CreateJSONGraph(fileName, graphName, []string{"A", "B", "C", "D"}, []string{"3h 15m", "3h 15m", "3h 15m", "3h 15m"})
+
+	f, err := os.Open(fileName)
+	if err != nil {
+		panic(err)
 	}
-	trip.Place(request)
+	defer f.Close()
+	g, err := trip.NewGraphFromJSON(f, graphName)
+	if err != nil {
+		panic(err)
+	}
+	path, distance, err := trip.Dijkstra(g, trip.StringID("A"), trip.StringID("D"))
+	if err != nil {
+		panic(err)
+	}
+	ts := []string{}
+	for _, v := range path {
+		ts = append(ts, fmt.Sprintf("%s(%.2f)", v, distance[v]))
+	}
+
+	fmt.Println(strings.Join(ts, " → "))
+	fmt.Println(distance[trip.StringID("T")])
+	fmt.Println("testGraph:", strings.Join(ts, " → "))
 }

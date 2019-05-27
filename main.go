@@ -73,3 +73,9 @@ func main() {
 	// Start and run the server
 	_ = router.Run(":8000")
 }
+// TODO Use trip.Dijkstra from debug.go in POST request and ask google API for every route to get path
+// TODO Fetch all responses into single one and send to frontend
+// TODO Add checkboxes in frontend to find all PlaceTypes in trip.ParseFetchPlacesRequest (do it in the loop - do not debug to much it costs)
+// TODO Add waypointstime range (not single time) 3h 15m -> 3h - 4h
+
+// TODO implement Our Algorithm (get proper weights for each waypoint (get lat lon and calculate distances, add places openhours and waypointtimes range
