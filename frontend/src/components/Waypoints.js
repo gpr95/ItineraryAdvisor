@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import Table from 'react-bootstrap/Table';
 import Row from 'react-bootstrap/Row';
+import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import InputGroup from 'react-bootstrap/InputGroup';
@@ -64,7 +65,7 @@ export default class Waypoints extends Component {
         let result = false
         switch (fieldName) {
             case 'newWaypointTime':
-                timeValid = /^(\d+h)?[ ]?(\d+m)?$/.test(value);
+                timeValid = /^(\d+h)?[ ]?(\d+m)?( - \d+(h|m))?[ ]?(\d+m)?$/.test(value);
                 timeValid = timeValid && value.length > 1;
                 result = timeValid
                 this.setState({ newWaypointTimeValid: timeValid });
@@ -125,21 +126,20 @@ export default class Waypoints extends Component {
             }
             this.props.placesFunc(checked)
         }
-        return [
-            <input type="checkbox" key={name} id={name} name={name} value={name} onClick={handle} />,
-            <label key={name + "_label"} htmlFor={name}>{name}</label>,
-            <br />
-        ];
+        return (
+            <Col sm={4}>
+                <input type="checkbox" key={name} id={name} name={name} value={name} onClick={handle} style={{ marginRight: '5px'}}/> 
+                <label key={name + "_label"} htmlFor={name}>{name}</label>
+            </Col>
+        );
     }
 
     render() {
 
         return (
             <React.Fragment>
-                <Row>
-                    <div style={{ height: '200px', overflow: 'auto' }} className="fullWidth">
-                        {SUPPORTED_PLACES_CODES.map(place_code => this.renderCheckbox(place_code))}
-                    </div>
+                <Row style={{ height: '200px', overflow: 'auto', whiteSpace: 'nowrap'}} className="fullWidth">
+                    {SUPPORTED_PLACES_CODES.map(place_code => this.renderCheckbox(place_code))}
                 </Row>
                 <Row>
                     <Container>
@@ -182,7 +182,7 @@ export default class Waypoints extends Component {
                             placement="top"
                             overlay={
                                 <Tooltip id={'tooltip-top'}>
-                                    Time format: <strong>3h 15m</strong>.
+                                    Time format: <strong>3h 15m</strong> or <strong>1h 10m - 4h</strong>.
                                         </Tooltip>}>
                             <Form.Control
                                 name="newWaypointTime"
