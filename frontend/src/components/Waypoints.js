@@ -11,6 +11,8 @@ import { Typeahead } from 'react-bootstrap-typeahead';
 
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 
+const SUPPORTED_PLACES_CODES = ['amusement_park', 'aquarium', 'art_gallery', 'bar', 'beauty_salon', 'book_store', 'bowling_alley', 'cafe', 'casino', 'church', 'city_hall', 'clothing_store', 'gym', 'hair_care', 'laundry', 'meal_takeaway', 'movie_rental', 'movie_theater', 'museum', 'night_club', 'park', 'pharmacy', 'store', 'supermarket', 'travel_agency', 'zoo']
+
 export default class Waypoints extends Component {
 
     constructor(props) {
@@ -86,11 +88,11 @@ export default class Waypoints extends Component {
 
     handleUserWaypointInput(e) {
         console.log(e)
-        if (e.target == undefined) {
+        if (e.target === undefined) {
 
             let selectedWaypoint = this.props.places.find(o => { return o.Name === e[0] })
             let isNewWaypointValid = false
-            if (selectedWaypoint == undefined) {
+            if (selectedWaypoint === undefined) {
                 this.setState({ newWaypointName: e });
                 this.validateNewWaypoint('newWaypointName', e);
                 return
@@ -112,10 +114,33 @@ export default class Waypoints extends Component {
         this.validateNewWaypoint(name, value);
     }
 
+    renderCheckbox(name) {
+        let handle = (ev) => {
+            let checked = this.props.selectedPlacesTypes.slice()
+            if (ev.target.checked) {
+                checked.push(name);
+            } else {
+                let index = checked.indexOf(name);
+                checked.splice(index, 1);
+            }
+            this.props.placesFunc(checked)
+        }
+        return [
+            <input type="checkbox" key={name} id={name} name={name} value={name} onClick={handle} />,
+            <label key={name + "_label"} htmlFor={name}>{name}</label>,
+            <br />
+        ];
+    }
+
     render() {
 
         return (
             <React.Fragment>
+                <Row>
+                    <div style={{ height: '200px', overflow: 'auto' }} className="fullWidth">
+                        {SUPPORTED_PLACES_CODES.map(place_code => this.renderCheckbox(place_code))}
+                    </div>
+                </Row>
                 <Row>
                     <Container>
                         <Button className="fullWidth" onClick={this.props.getWaypoints}>Fetch Waypoints for this area</Button>
@@ -125,7 +150,8 @@ export default class Waypoints extends Component {
                     <Form.Label>Waypoints</Form.Label>
                     <InputGroup className="mb-3 waypoint" >
                         <Typeahead
-                            id="test"
+                            id="typeahead"
+                            key="typeahead"
                             name="newWaypointName"
                             ref={(typeahead) => this.typeahead = typeahead}
                             options={this.props.places.map(o => { return o.Name })}
@@ -136,7 +162,7 @@ export default class Waypoints extends Component {
                             onChange={(event) => this.handleUserWaypointInput(event)}
                             onInputChange={(event) => this.handleUserWaypointInput(event)}
                             isValid={this.state.newWaypointNameValid} />
-                        <OverlayTrigger key="top"
+                        <OverlayTrigger key="tooltipOpeningHours"
                             placement="top"
                             overlay={
                                 <Tooltip id={'tooltip-top'}>
@@ -145,13 +171,14 @@ export default class Waypoints extends Component {
                             <Form.Control
                                 name="newWaypointOpeningHours"
                                 ref="newWaypointOpeningHours"
+                                key="newWaypointOpeningHours"
                                 style={{ flexGrow: '2' }}
                                 placeholder='opening hours name'
                                 value={this.state.newWaypointOpeningHours}
                                 onChange={(event) => this.handleUserWaypointInput(event)}
                                 isValid={this.state.newWaypointOpeningHoursValid} />
                         </OverlayTrigger>
-                        <OverlayTrigger key="top"
+                        <OverlayTrigger key="topWaypointTime"
                             placement="top"
                             overlay={
                                 <Tooltip id={'tooltip-top'}>
@@ -160,6 +187,7 @@ export default class Waypoints extends Component {
                             <Form.Control
                                 name="newWaypointTime"
                                 ref="newWaypointTime"
+                                key="newWaypointTime"
                                 placeholder='time'
                                 value={this.state.newWaypointTime}
                                 onChange={(event) => this.handleUserWaypointInput(event)}
@@ -167,6 +195,7 @@ export default class Waypoints extends Component {
                         </OverlayTrigger>
                         <InputGroup.Append>
                             <Button type="button"
+                                key="addWaypointButton"
                                 onClick={this.state.newWaypointValid ? this.handleAddWaypoint : null}
                                 disabled={!this.state.newWaypointValid}>
                                 Add waypoint
@@ -174,7 +203,7 @@ export default class Waypoints extends Component {
                         </InputGroup.Append>
                     </InputGroup>
                 </Row>
-                <Row style={{ height: '400px', overflow: 'auto' }}>
+                <Row style={{ height: '200px', overflow: 'auto' }}>
                     <Table>
                         <tbody>
                             {this.state.waypoints.map((waypoint, idx) => (
