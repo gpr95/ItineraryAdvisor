@@ -19,8 +19,7 @@ package main
 import (
 	"fmt"
 	"github.com/gpr95/ItineraryAdvisor/trip"
-	"os"
-	"strings"
+	"github.com/kr/pretty"
 )
 
 var places2 = []trip.Place{
@@ -37,43 +36,6 @@ var places2 = []trip.Place{
 }
 
 func main() {
-	// trip.GetWightsBetweenPlaces(places2)
-	testGraph()
-
-	//reg, err := regexp.Compile("[^0-9]+")
-	//if err != nil {
-	//	log.Fatal(err)
-	//}
-	//processedString := reg.ReplaceAllString("2h", "")
-	//
-	//hours, _ := strconv.Atoi(processedString)
-	//fmt.Printf("%f\n", -(float64(hours) / 24.0) * float64(1000))
-}
-
-func testGraph() {
-	fileName := "testfile"
-	graphName := "testGraph"
-	// trip.CreateJSONGraph(fileName, graphName, places2)
-
-	f, err := os.Open(fileName)
-	if err != nil {
-		panic(err)
-	}
-	defer f.Close()
-	g, err := trip.NewGraphFromJSON(f, graphName)
-	if err != nil {
-		panic(err)
-	}
-	path, distance, err := trip.Dijkstra(g, trip.StringID("Państwowe Muzeum Etnograficzne w Warszawie"), trip.StringID("Muzeum Teatralne"))
-	if err != nil {
-		panic(err)
-	}
-	ts := []string{}
-	for _, v := range path {
-		ts = append(ts, fmt.Sprintf("%s(%.2f)", v, distance[v]))
-	}
-
-	fmt.Println(strings.Join(ts, " → "))
-	fmt.Println(distance[trip.StringID("T")])
-	fmt.Println("testGraph:", strings.Join(ts, " → "))
+	path := trip.FindItinerary(places2, trip.Place{Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"})
+	fmt.Printf("%# v", pretty.Formatter(path))
 }

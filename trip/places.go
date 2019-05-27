@@ -127,9 +127,11 @@ func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]float64{
 		innerDistances := make(map[Place]float64)
 
 		for idxDistance, distance := range resp.Rows[idx].Elements{
-			innerDistances[placesIDs[idxDistance]] = float64(distance.Distance.Meters) +
-				parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, distance.Distance.Meters) +
-				parseTimeToWight(placesIDs[idxDistance].Time, distance.Distance.Meters)
+			if placesIDs[idxDistance] != placeObject {
+				innerDistances[placesIDs[idxDistance]] = float64(distance.Distance.Meters) +
+					parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, distance.Distance.Meters) +
+					parseTimeToWight(placesIDs[idxDistance].Time, distance.Distance.Meters)
+			}
 		}
 		distances[placeObject] = innerDistances
 	}
