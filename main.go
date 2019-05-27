@@ -62,9 +62,8 @@ func main() {
 			context.JSON(200, response)
 		})
 
-		// Serve default places
+		// Serve places for given coordinates
 		api.GET("/places", func(c *gin.Context) {
-			// TEMPORARY MOCK - uncomment to use google api
 			request := trip.ParseFetchPlacesRequest(c)
 			places := trip.NearbySearch(request)
 			c.JSON(200, places)
@@ -77,7 +76,6 @@ func main() {
 
 // TODO Use trip.Dijkstra from debug.go in POST request and ask google API for every route to get path
 // TODO Fetch all responses into single one and send to frontend
-// TODO Add checkboxes in frontend to find all PlaceTypes in trip.ParseFetchPlacesRequest (do it in the loop - do not debug to much it costs)
 // TODO Add waypointstime range (not single time) 3h 15m -> 3h - 4h
 
 // TODO implement Our Algorithm (get proper weights for each waypoint (get lat lon and calculate distances, add places openhours and waypointtimes range
