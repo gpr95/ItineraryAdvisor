@@ -3,10 +3,11 @@ package trip
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"net/url"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
 
 	"github.com/kr/pretty"
 	"googlemaps.github.io/maps"
@@ -131,13 +132,13 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 			}
 			latitude :=
 				strconv.FormatFloat((directionMap["north"]+directionMap["south"])/2.0, 'f', 6, 64) +
-					","+
+					"," +
 					strconv.FormatFloat((directionMap["west"]+directionMap["east"])/2.0, 'f', 6, 64)
 
 			googleRequest := GoogleCustomNearbySearchRequest{
-				 Location: latitude,
-				 RankBy: "distance",
-				 PlaceTypes: "museum",
+				Location:   latitude,
+				RankBy:     "distance",
+				PlaceTypes: "museum",
 			}
 			NearbySearch(googleRequest)
 			fmt.Printf("%# v", pretty.Formatter(bounds))
@@ -148,19 +149,19 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 
 func ParseFetchPlacesRequest(c *gin.Context) GoogleCustomNearbySearchRequest {
 	q := c.Request.URL.Query()
-	north, _ := strconv.ParseFloat(q["north"][0],64)
-	south, _ := strconv.ParseFloat(q["south"][0],64)
-	west, _ := strconv.ParseFloat(q["west"][0],64)
-	east, _ := strconv.ParseFloat(q["east"][0],64)
+	north, _ := strconv.ParseFloat(q["north"][0], 64)
+	south, _ := strconv.ParseFloat(q["south"][0], 64)
+	west, _ := strconv.ParseFloat(q["west"][0], 64)
+	east, _ := strconv.ParseFloat(q["east"][0], 64)
 	println(north)
 	latitude :=
 		strconv.FormatFloat((north+south)/2.0, 'f', 6, 64) +
-			","+
+			"," +
 			strconv.FormatFloat((west+east)/2.0, 'f', 6, 64)
 	println(latitude)
 	return GoogleCustomNearbySearchRequest{
-		Location: latitude,
-		RankBy: "distance",
-		PlaceTypes: "museum",
+		Location:   latitude,
+		RankBy:     "distance",
+		PlaceTypes: q["types"][0],
 	}
 }

@@ -17,6 +17,7 @@ export default class MapContainer extends React.Component {
                 Route: [],
             },
             waypoints: [],
+            selectedPlacesTypes: [],
         });
         this.places = []
         this.submit = this.submit.bind(this);
@@ -25,6 +26,7 @@ export default class MapContainer extends React.Component {
         this.setMarkerPosition = this.setMarkerPosition.bind(this);
         this.setCurrentView = this.setCurrentView.bind(this)
         this.getWaypoints = this.getWaypoints.bind(this)
+        this.setSelectedPlacesTypes = this.setSelectedPlacesTypes.bind(this)
     }
 
     componentDidMount() {
@@ -33,7 +35,9 @@ export default class MapContainer extends React.Component {
 
     getWaypoints() {
         console.log(Object.entries(this.state.bounds.toJSON()).map(([key, v]) => "" + key + "=" + v).join('&'))
-        fetch('/api/places?&' + Object.entries(this.state.bounds.toJSON()).map(([key, v]) => "" + key + "=" + v).join('&'), {
+        fetch('/api/places?&' + 
+            Object.entries(this.state.bounds.toJSON()).map(([key, v]) => "" + key + "=" + v).join('&') + 
+            '&types=' + this.state.selectedPlacesTypes.join('|'), {
             method: 'GET',
         })
         .then((response) => {
@@ -89,6 +93,11 @@ export default class MapContainer extends React.Component {
         this.setState({ bounds: bounds });
     }
 
+    setSelectedPlacesTypes(selectedPlacesTypes) {
+        console.log(selectedPlacesTypes)
+        this.setState({ selectedPlacesTypes: selectedPlacesTypes });
+    }
+
     render() {
         return <React.Fragment>
             {/* <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script> */}
@@ -96,7 +105,7 @@ export default class MapContainer extends React.Component {
             <Row className="flex-grow-1" >
                 <Col md={3}>
                     <UserInput submit={this.submit} waypoints={this.state.waypoints} />
-                    <Waypoints waypointsFunc={this.setWaypoints} places={this.state.places} getWaypoints={this.getWaypoints} />
+                    <Waypoints waypointsFunc={this.setWaypoints} places={this.state.places} getWaypoints={this.getWaypoints} placesFunc={this.setSelectedPlacesTypes} selectedPlacesTypes={this.state.selectedPlacesTypes}/>
                 </Col>
                 <Col md={4}>
                     <RouteInfo routeInfo={this.state.routeInfo} />
