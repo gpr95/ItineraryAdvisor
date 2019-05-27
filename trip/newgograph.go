@@ -9,23 +9,35 @@ import (
 	"io/ioutil"
 	"math"
 	"sync"
-	"time"
 )
 
-func CreateJSONGraph(fileName string, graphName string, waypoints []string, waypointsTimes []string)  {
+func CreateJSONGraph(fileName string, graphName string, waypoints []Place)  {
+	//TODO temporary MOCK
+	//wayPointsWithWights := GetWightsBetweenPlaces(waypoints)
+	wayPointsWithWights := map[Place]map[Place]float64{
+		{Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:                   {{Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:30.625, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:91.5, {Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:0, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:271.0416666666667, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:1390.5416666666667, {Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:1199.8333333333333, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:779.125, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:130, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:123, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:379.3333333333333},
+		{Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:                            {{Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:1090.5833333333333, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:0, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:1104, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:107.08333333333334, {Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:206.66666666666669, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:114.62499999999993, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:168, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:208.75, {Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:893.1666666666666, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:1386.7083333333333},
+		{Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:                             {{Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:592.25, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:268.75, {Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:271.875, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:94.125, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:384, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:0, {Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:1390.5416666666667, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:424.99999999999994, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:38.125, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:2169.6666666666665},
+		{Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:                                    {{Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:195, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:190.125, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:196.74999999999997, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:482.3333333333333, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:2169.6666666666665, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:236.875, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:440.4166666666667, {Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:1978.9583333333333, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:0, {Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:756.125},
+		{Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:     {{Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:99.375, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:171.33333333333334, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:237.5, {Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:1045.5416666666667, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:1089.625, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:0, {Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:598, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:102.49999999999999, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:1236.25, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:77.87499999999993},
+		{Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}: {{Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:140.875, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:100.74999999999997, {Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:1059.9166666666667, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:99.375, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:73.125, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:240.41666666666669, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:1250.625, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:920, {Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:0, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:330.6666666666667},
+		{Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:                {{Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:121.875, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:0, {Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:701.5, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:246.99999999999997, {Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:1006.25, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:129.79166666666666, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:305.6666666666667, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:179.58333333333334, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:715.875, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:1480.625},
+		{Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:          {{Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:85.41666666666667, {Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:83.95833333333334, {Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:1438.4583333333333, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:1629.1666666666667, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:754.2083333333334, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:123.49999999999997, {Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:471.5, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:0, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:224, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:322.9166666666667},
+		{Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:                         {{Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:240.41666666666669, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:387.49999999999994, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:175.375, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:2025.9166666666667, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:0, {Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:448.5, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:237.5, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:108.49999999999997, {Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:1246.7916666666667, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:334},
+		{Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:  {{Name:"Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJ7-9EM_fMHkcRVh9fPLxfJW8"}:0, {Name:"Muzeum Teatralne", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}:1978.9583333333333, {Name:"Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJV9L_QvXMHkcR4fE_qS-WapY"}:227.29166666666669, {Name:"Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours:"11:00-18:00", Time:"1h", PlaceID:"ChIJj1ffSl7MHkcRBfCWp3BZgGc"}:230.41666666666669, {Name:"Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours:"10:00-17:00", Time:"1h", PlaceID:"ChIJPcztF2DMHkcRNTXS6e61rqo"}:375.24999999999983, {Name:"Muzeum Historii Akimosik", OpeningHours:"10:00-15:00", Time:"1h", PlaceID:"ChIJZ1x3xfTMHkcRAimNnQ9D9os"}:310.6666666666667, {Name:"Muzeum Narodowe w Warszawie", OpeningHours:"10:00-18:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcR0iGDJoZsIgc"}:97.5, {Name:"Muzeum Fryderyka Chopina w Warszawie", OpeningHours:"11:00-20:00", Time:"1h", PlaceID:"ChIJKbVhrFjMHkcRdbMJyIdXC34"}:131.25, {Name:"Muzeum Uniwersytetu Warszawskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJnT24I17MHkcR8TirCHITPHM"}:1199.8333333333333, {Name:"Muzeum Wojska Polskiego", OpeningHours:"00:00-00:00", Time:"1h", PlaceID:"ChIJK6UEcvfMHkcRGDePQvvQqow"}:592.25},
+	}
+
 	mapWithGraphName := make(map[string]map[string]map[string]float64)
 	wholeMap := make(map[string]map[string]float64)
 	for i := 0; i < len(waypoints) ; i++  {
 
 		otherNodes := make(map[string]float64)
-		for j := range waypoints {
-			if j != i {
-				waypointTime, _ := time.Parse("3h 15m", waypointsTimes[j])
-				otherNodes[waypoints[j]] = 10.0 + float64(waypointTime.Hour())
-			}
+
+		for k, v := range wayPointsWithWights[waypoints[i]] {
+			otherNodes[k.Name] = float64(v)
 		}
 
-		wholeMap[waypoints[i]] = otherNodes
+		wholeMap[waypoints[i].Name] = otherNodes
 	}
 	mapWithGraphName[graphName] = wholeMap
 	wholeMapJSON, _ := json.Marshal(mapWithGraphName)
@@ -72,49 +84,6 @@ func (h *nodeDistanceHeap) updateDistance(id ID, val float64) {
 			break
 		}
 	}
-}
-
-
-func BFS(g Graph, id ID) []ID {
-	if g.GetNode(id) == nil {
-		return nil
-	}
-
-	q := []ID{id}
-	visited := make(map[ID]bool)
-	visited[id] = true
-	rs := []ID{id}
-
-	// while Q is not empty:
-	for len(q) != 0 {
-
-		u := q[0]
-		q = q[1:len(q):len(q)]
-
-		// for each vertex w adjacent to u:
-		cmap, _ := g.GetTargets(u)
-		for _, w := range cmap {
-			// if w is not visited yet:
-			if _, ok := visited[w.ID()]; !ok {
-				q = append(q, w.ID())  // Q.push(w)
-				visited[w.ID()] = true // label w as visited
-
-				rs = append(rs, w)
-			}
-		}
-		pmap, _ := g.GetSources(u)
-		for _, w := range pmap {
-			// if w is not visited yet:
-			if _, ok := visited[w.ID()]; !ok {
-				q = append(q, w.ID())  // Q.push(w)
-				visited[w.ID()] = true // label w as visited
-
-				rs = append(rs, w.ID())
-			}
-		}
-	}
-
-	return rs
 }
 
 

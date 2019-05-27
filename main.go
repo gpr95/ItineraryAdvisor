@@ -63,7 +63,7 @@ func main() {
 
 		// Serve default places
 		api.GET("/places", func(c *gin.Context) {
-			// TEMPORARY MOCK - uncomment to use google api
+			// TODO TEMPORARY MOCK - uncomment to use google api
 			//request := trip.ParseFetchPlacesRequest(c)
 			//places := trip.NearbySearch(request)
 			c.JSON(200, places)

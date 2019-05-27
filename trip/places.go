@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"github.com/kr/pretty"
 	"log"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -27,14 +29,14 @@ type GoogleCustomNearbySearchRequest struct {
 	PlaceTypes string // pipe sign separated
 }
 
-type place struct {
+type Place struct {
 	Name         string
 	OpeningHours string
 	Time         string
 	PlaceID		 string
 }
 
-func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
+func PlaceFinder(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
 	client := getGoogleClient()
 
 	r := &maps.FindPlaceFromTextRequest{
@@ -60,7 +62,7 @@ func Place(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
 	return placeDetail
 }
 
-func NearbySearch(request GoogleCustomNearbySearchRequest) []place {
+func NearbySearch(request GoogleCustomNearbySearchRequest) []Place {
 	client := getGoogleClient()
 
 	r := &maps.NearbySearchRequest{
@@ -76,7 +78,7 @@ func NearbySearch(request GoogleCustomNearbySearchRequest) []place {
 	check(err)
 
 
-	places := make([]place, 0)
+	places := make([]Place, 0)
 	for i:=0; i<len(resp.Results) ; i++ {
 		detailPlaceRequest := &maps.PlaceDetailsRequest{
 			PlaceID: resp.Results[i].PlaceID,
@@ -84,7 +86,7 @@ func NearbySearch(request GoogleCustomNearbySearchRequest) []place {
 		}
 		placeDetail, err := client.PlaceDetails(context.Background(), detailPlaceRequest)
 		places = append(places,
-			place{
+			Place{
 				Name:resp.Results[i].Name,
 				OpeningHours:getOpeningHours(placeDetail, time.Now()),
 				Time: "1h",
@@ -95,6 +97,66 @@ func NearbySearch(request GoogleCustomNearbySearchRequest) []place {
 
 	fmt.Printf("%# v", pretty.Formatter(places))
 	return places
+}
+
+func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]float64{
+	client := getGoogleClient()
+
+	distanceMatrixRequest := &maps.DistanceMatrixRequest{
+		Language:      "PL",
+	}
+
+	var placesIDsChnged []string
+
+	for _, place := range placesIDs {
+		placesIDsChnged = append(placesIDsChnged, "place_id:" + place.PlaceID)
+	}
+
+	distanceMatrixRequest.Origins = placesIDsChnged
+	distanceMatrixRequest.Destinations = placesIDsChnged
+
+	distanceMatrixRequest.Mode = maps.TravelModeWalking
+	distanceMatrixRequest.Units = maps.UnitsMetric
+
+	resp, err := client.DistanceMatrix(context.Background(), distanceMatrixRequest)
+	check(err)
+
+	distances := make(map[Place]map[Place]float64)
+
+	for idx, placeObject := range placesIDs {
+		innerDistances := make(map[Place]float64)
+
+		for idxDistance, distance := range resp.Rows[idx].Elements{
+			innerDistances[placesIDs[idxDistance]] = float64(distance.Distance.Meters) +
+				parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, distance.Distance.Meters) +
+				parseTimeToWight(placesIDs[idxDistance].Time, distance.Distance.Meters)
+		}
+		distances[placeObject] = innerDistances
+	}
+
+	fmt.Printf("%# v", pretty.Formatter(distances))
+
+	return distances
+}
+
+func parseTimeToWight(stayingTime string, distance int) float64{
+	reg, err := regexp.Compile("[^0-9]+")
+	if err != nil {
+		log.Fatal(err)
+	}
+	processedString := reg.ReplaceAllString(stayingTime, "")
+
+	hours, _ := strconv.Atoi(processedString)
+	fmt.Printf("%s -> %f, distance: %d\n ", stayingTime,  -(float64(hours) / 24.0) * float64(distance), distance)
+	return -(float64(hours) / 24.0) * float64(distance)
+}
+
+func parseOpenHourToWight(openingHours string, distance int) float64{
+	closingTime := strings.Split(openingHours, "-")[1]
+	closingHourStr := strings.Split(closingTime, ":")[0]
+	closingHour, _ := strconv.Atoi(closingHourStr)
+	fmt.Printf("%s -> %f, distance: %d\n ", openingHours,  -(float64(closingHour) / 24.0) * float64(distance), distance)
+	return -(float64(closingHour) / 24.0) * float64(distance)
 }
 
 func getFormattedAddress(place maps.PlaceDetailsResult) string{
