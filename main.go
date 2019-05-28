@@ -1,11 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/gpr95/ItineraryAdvisor/trip"
+	"github.com/kr/pretty"
 )
 
 type place struct {
@@ -26,7 +28,7 @@ var places = []place{
 	{Name: "Muzeum Wojska Polskiego", OpeningHours: "00:00-00:00", Time: "1h", PlaceID: "ChIJK6UEcvfMHkcRGDePQvvQqow"},
 	{Name: "Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours: "00:00-00:00", Time: "1h", PlaceID: "ChIJ7-9EM_fMHkcRVh9fPLxfJW8"},
 	{Name: "Muzeum Teatralne", OpeningHours: "", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"},
-	{Name: "um Sztuki Nowoczesnej w Warszawie Museum of Modern Art in Warsaw Oddział nad Wisłą", OpeningHours: "", Time: "1h", PlaceID: "ChIJIelSflvMHkcRRl4TMOwgVEs"},
+	{Name: "Centrum Sztuki Nowoczesnej w Warszawie Museum of Modern Art in Warsaw Oddział nad Wisłą", OpeningHours: "", Time: "1h", PlaceID: "ChIJIelSflvMHkcRRl4TMOwgVEs"},
 	{Name: "Muzeum Sztuki Nowoczesnej w Warszawie - Muzeum nad Wisłą", OpeningHours: "12:00-20:00", Time: "1h", PlaceID: "ChIJi-z6GYzMHkcRhyyhcBDZfqk"},
 	{Name: "Muzeum Karykatury im. E. Lipińskiego", OpeningHours: "10:00-18:00", Time: "1h", PlaceID: "ChIJ3SDb8mbMHkcRW0EyA4S7MCw"},
 	{Name: "Muzeum Wódki", OpeningHours: "11:00-18:00", Time: "1h", PlaceID: "ChIJ48K19WPMHkcRaZQ0RMUYAkg"},
@@ -55,9 +57,24 @@ func main() {
 				println("error on parse multipart form map: %v", err)
 			}
 
+			waypoints, source := trip.ParsePlaces(context.Request.PostForm)
+			fmt.Printf("%# v", pretty.Formatter(waypoints))
+			fmt.Printf("%# v", pretty.Formatter(source))
+
+			path := trip.FindItinerary(waypoints, source)
+			fmt.Printf("%# v", pretty.Formatter(path))
+
+			googleRequestsList := trip.ParseItineraryToGoogleRequests(path)
+			fmt.Printf("%# v", pretty.Formatter(googleRequestsList))
+
+			frontendResponse := trip.FrontendResponse{}
+			for _, googleRequest := range googleRequestsList {
+				trip.AppendGoogleResponse(frontendResponse, trip.Route(googleRequest))
+			}
+			fmt.Printf("%# v", pretty.Formatter(frontendResponse))
+
 			googleResponse := trip.Route(trip.ParseFrontendRequest(context.Request.PostForm))
 			response := trip.GetCoordinatesAndInfoFromRoute(googleResponse)
-			// fmt.Printf("%# v", pretty.Formatter(response))
 
 			context.JSON(200, response)
 		})

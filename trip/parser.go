@@ -9,7 +9,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/kr/pretty"
 	"googlemaps.github.io/maps"
 )
 
@@ -45,13 +44,13 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 		output.OverviewPolyline = route.OverviewPolyline
 		meters := int(0)
 		for _, leg := range route.Legs {
-			fmt.Println("Leg distance -> " + leg.Distance.HumanReadable)
+			// fmt.Println("Leg distance -> " + leg.Distance.HumanReadable)
 			meters = leg.Distance.Meters + meters
-			fmt.Println("Total distance -> " + strconv.Itoa(meters) + " m")
+			// fmt.Println("Total distance -> " + strconv.Itoa(meters) + " m")
 
-			fmt.Println("Leg duration -> " + leg.Duration.String())
+			// fmt.Println("Leg duration -> " + leg.Duration.String())
 			output.Duration = output.Duration + leg.Duration
-			fmt.Println("Total duration -> " + output.Duration.String())
+			// fmt.Println("Total duration -> " + output.Duration.String())
 			output.ArrivalTime = leg.ArrivalTime
 			output.DepartureTime = leg.DepartureTime
 			for _, step := range leg.Steps {
@@ -60,12 +59,12 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 			}
 		}
 		output.Distance = strconv.Itoa(meters) + " m"
-		if len(output.Distance) > 3 {
-			strMeters := output.Distance[len(output.Distance)-5 : len(output.Distance)-1]
-			strKm := output.Distance[0 : len(output.Distance)-5]
+		// if len(output.Distance) > 3 {
+		// 	strMeters := output.Distance[len(output.Distance)-5 : len(output.Distance)-1]
+		// 	strKm := output.Distance[0 : len(output.Distance)-5]
 
-			output.Distance = strKm + " km " + strMeters + " m"
-		}
+		// 	output.Distance = strKm + " km " + strMeters + " m"
+		// }
 	}
 	return output
 }
@@ -117,34 +116,95 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 				googleRequest.WaypointsTime = append(googleRequest.WaypointsTime, value.Time)
 			}
 			googleRequest.Destination = googleRequest.Waypoints[len(googleRequest.Waypoints)-1]
-		case "bounds":
-			var directionMap map[string]float64
-			_ = json.Unmarshal([]byte(value[0]), &directionMap)
-			bounds := maps.LatLngBounds{
-				NorthEast: maps.LatLng{
-					Lat: directionMap["north"],
-					Lng: directionMap["east"],
-				},
-				SouthWest: maps.LatLng{
-					Lat: directionMap["south"],
-					Lng: directionMap["west"],
-				},
-			}
-			latitude :=
-				strconv.FormatFloat((directionMap["north"]+directionMap["south"])/2.0, 'f', 6, 64) +
-					"," +
-					strconv.FormatFloat((directionMap["west"]+directionMap["east"])/2.0, 'f', 6, 64)
-
-			googleRequest := GoogleCustomNearbySearchRequest{
-				Location:   latitude,
-				RankBy:     "distance",
-				PlaceTypes: "museum",
-			}
-			NearbySearch(googleRequest)
-			fmt.Printf("%# v", pretty.Formatter(bounds))
 		}
 	}
 	return googleRequest
+}
+
+func ParseItineraryToGoogleRequests(placesList map[Place]string) []GoogleCustomRouteRequest {
+
+	googleRequests := make([]GoogleCustomRouteRequest, 0)
+
+	places := make([]Place, 0)
+	for key := range placesList {
+		places = append(places, key)
+	}
+
+	for index := 0; index < len(places)-1; index++ {
+
+		transitMode := placesList[places[index]]
+
+		newGoogleRequest := GoogleCustomRouteRequest{
+			Origin:                   places[index].Name,
+			Destination:              places[index+1].Name,
+			Mode:                     []string{},
+			DepartureTime:            "",
+			ArrivalTime:              "",
+			Waypoints:                []string{},
+			WaypointsTime:            []string{},
+			Language:                 "PL",
+			Region:                   "",
+			TransitMode:              transitMode,
+			TransitRoutingPreference: "",
+			TrafficModel:             "",
+		}
+
+		googleRequests = append(googleRequests, newGoogleRequest)
+	}
+
+	return googleRequests
+}
+
+func AppendGoogleResponse(base FrontendResponse, route []maps.Route) FrontendResponse {
+
+	newResponse := GetCoordinatesAndInfoFromRoute(route)
+	// fmt.Printf("%# v", pretty.Formatter(newResponse))
+	if len(base.Route) == 0 {
+		return newResponse
+	}
+	// fmt.Printf("%# v", pretty.Formatter(base))
+	polylineA, _ := base.OverviewPolyline.Decode()
+	polylineB, _ := newResponse.OverviewPolyline.Decode()
+
+	newPolyline := append(polylineA, polylineB...)
+
+	return FrontendResponse{
+		Route:            append(base.Route, newResponse.Route...),
+		Distance:         "-1",
+		Duration:         base.Duration + newResponse.Duration,
+		ArrivalTime:      newResponse.ArrivalTime,
+		DepartureTime:    base.DepartureTime,
+		OverviewPolyline: maps.Polyline{Points: maps.Encode(newPolyline)},
+	}
+}
+
+func ParsePlaces(clientRequest url.Values) ([]Place, Place) {
+
+	source := Place{
+		Name:         "",
+		OpeningHours: "00:00-00:00",
+		Time:         "0",
+		PlaceID:      "",
+	}
+
+	waypoints := make([]Place, 0)
+
+	for key, value := range clientRequest {
+		fmt.Println(key, value)
+		if value[0] == "undefined" || value[0] == "null" {
+			continue
+		}
+
+		switch key {
+		case "origin":
+			source.Name = value[0]
+		case "waypoints":
+			var placetList []Place
+			_ = json.Unmarshal([]byte(value[0]), &placetList)
+			waypoints = placetList
+		}
+	}
+	return waypoints, source
 }
 
 func ParseFetchPlacesRequest(c *gin.Context) GoogleCustomNearbySearchRequest {

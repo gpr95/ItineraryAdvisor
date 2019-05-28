@@ -31,7 +31,7 @@ export default class Waypoints extends Component {
     }
 
     handleAddWaypoint = () => {
-        let newelement = { name: this.state.newWaypointName, openingHours: this.state.newWaypointOpeningHours, time: this.state.newWaypointTime }
+        let newelement = { name: this.state.newWaypointName, openingHours: this.state.newWaypointOpeningHours, time: this.state.newWaypointTime, PlaceID: this.state.newWaypointID }
         console.log(this.state)
         this.typeahead.getInstance().clear()
         this.setState(prevState => ({
@@ -40,6 +40,7 @@ export default class Waypoints extends Component {
             newWaypointName: '',
             newWaypointTime: '',
             newWaypointOpeningHours: '',
+            newWaypointID: '',
             newWaypointValid: false,
             newWaypointNameValid: false,
             newWaypointTimeValid: false,
@@ -105,6 +106,7 @@ export default class Waypoints extends Component {
                 newWaypointName: selectedWaypoint.Name,
                 newWaypointTime: selectedWaypoint.Time,
                 newWaypointOpeningHours: selectedWaypoint.OpeningHours,
+                newWaypointID: selectedWaypoint.PlaceID,
                 newWaypointValid: isNewWaypointValid,
             });
             return
