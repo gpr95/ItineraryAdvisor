@@ -2,10 +2,8 @@ package trip
 
 import (
 	"context"
-	"log"
-	"strings"
-
 	"googlemaps.github.io/maps"
+	"log"
 )
 
 
@@ -30,11 +28,6 @@ type GoogleCustomRouteRequest struct {
 	ArrivalTime              string
 	Waypoints                []string
 	WaypointsTime            []string
-	Language                 string
-	Region                   string
-	TransitMode              string
-	TransitRoutingPreference string
-	TrafficModel             string
 }
 
 func Route(request GoogleCustomRouteRequest) []maps.Route {
@@ -46,8 +39,7 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 		Destination:   request.Destination,
 		DepartureTime: request.DepartureTime,
 		ArrivalTime:   request.ArrivalTime,
-		Language:      request.Language,
-		Region:        request.Region,
+		Language:      "PL",
 		Waypoints:     request.Waypoints,
 	}
 
@@ -60,13 +52,6 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 		lookupMode("", r)
 	}
 
-	// set Google Directions request content (TransitRoutingPreference)
-	lookupTransitRoutingPreference(request.TransitRoutingPreference, r)
-	// set Google Directions request content (Mode)
-	lookupTrafficModel(request.TrafficModel, r)
-	// separate | transit mode and rest Google Directions request content (TransitMode)
-	lookupTransitMode(request.TransitMode, r)
-
 	// CALL DIRECTIONS API
 	routes, _, err := client.Directions(context.Background(), r)
 	check(err)
@@ -76,24 +61,6 @@ func Route(request GoogleCustomRouteRequest) []maps.Route {
 
 }
 
-func lookupTransitMode(mode string, r *maps.DirectionsRequest) {
-	if mode != "" {
-		for _, t := range strings.Split(mode, "|") {
-			switch t {
-			case "bus":
-				r.TransitMode = append(r.TransitMode, maps.TransitModeBus)
-			case "subway":
-				r.TransitMode = append(r.TransitMode, maps.TransitModeSubway)
-			case "train":
-				r.TransitMode = append(r.TransitMode, maps.TransitModeTrain)
-			case "tram":
-				r.TransitMode = append(r.TransitMode, maps.TransitModeTram)
-			case "rail":
-				r.TransitMode = append(r.TransitMode, maps.TransitModeRail)
-			}
-		}
-	}
-}
 
 func lookupMode(mode string, r *maps.DirectionsRequest) {
 	switch mode {
@@ -109,33 +76,5 @@ func lookupMode(mode string, r *maps.DirectionsRequest) {
 		// ignore
 	default:
 		log.Fatalf("Unknown Mode '%s'", mode)
-	}
-}
-
-func lookupTransitRoutingPreference(transitRoutingPreference string, r *maps.DirectionsRequest) {
-	switch transitRoutingPreference {
-	case "fewer_transfers":
-		r.TransitRoutingPreference = maps.TransitRoutingPreferenceFewerTransfers
-	case "less_walking":
-		r.TransitRoutingPreference = maps.TransitRoutingPreferenceLessWalking
-	case "":
-		// ignore
-	default:
-		log.Fatalf("Unknown transit routing preference %s", transitRoutingPreference)
-	}
-}
-
-func lookupTrafficModel(trafficModel string, r *maps.DirectionsRequest) {
-	switch trafficModel {
-	case "optimistic":
-		r.TrafficModel = maps.TrafficModelOptimistic
-	case "best_guess":
-		r.TrafficModel = maps.TrafficModelBestGuess
-	case "pessimistic":
-		r.TrafficModel = maps.TrafficModelPessimistic
-	case "":
-		// ignore
-	default:
-		log.Fatalf("Unknown traffic Mode %s", trafficModel)
 	}
 }

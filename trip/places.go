@@ -36,6 +36,12 @@ type Place struct {
 	PlaceID		 string
 }
 
+type RouteStatistics struct {
+	Wight float64
+	Distance int
+	Time time.Duration
+}
+
 func PlaceFinder(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
 	client := getGoogleClient()
 
@@ -99,7 +105,8 @@ func NearbySearch(request GoogleCustomNearbySearchRequest) []Place {
 	return places
 }
 
-func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]float64{
+
+func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]RouteStatistics{
 	client := getGoogleClient()
 
 	distanceMatrixRequest := &maps.DistanceMatrixRequest{
@@ -121,24 +128,28 @@ func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]float64{
 	resp, err := client.DistanceMatrix(context.Background(), distanceMatrixRequest)
 	check(err)
 
-	distances := make(map[Place]map[Place]float64)
+	statistics := make(map[Place]map[Place]RouteStatistics)
 
 	for idx, placeObject := range placesIDs {
-		innerDistances := make(map[Place]float64)
+		innerDistances := make(map[Place]RouteStatistics)
 
-		for idxDistance, distance := range resp.Rows[idx].Elements{
+		for idxDistance, row := range resp.Rows[idx].Elements{
 			if placesIDs[idxDistance] != placeObject {
-				innerDistances[placesIDs[idxDistance]] = float64(distance.Distance.Meters) +
-					parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, distance.Distance.Meters) +
-					parseTimeToWight(placesIDs[idxDistance].Time, distance.Distance.Meters)
+				wight := float64(row.Distance.Meters) +
+					parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, row.Distance.Meters) +
+					parseTimeToWight(placesIDs[idxDistance].Time, row.Distance.Meters)
+				time := row.Duration
+				statistics := RouteStatistics{Distance: row.Distance.Meters, Time: time, Wight: wight}
+
+				innerDistances[placesIDs[idxDistance]] = statistics
 			}
 		}
-		distances[placeObject] = innerDistances
+		statistics[placeObject] = innerDistances
 	}
 
-	fmt.Printf("%# v", pretty.Formatter(distances))
+	fmt.Printf("%# v", pretty.Formatter(statistics))
 
-	return distances
+	return statistics
 }
 
 func parseTimeToWight(stayingTime string, distance int) float64{

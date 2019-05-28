@@ -18,9 +18,9 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/gpr95/ItineraryAdvisor/trip"
 	"github.com/kr/pretty"
+	"strconv"
 )
 
 var places2 = []trip.Place{
@@ -37,13 +37,17 @@ var places2 = []trip.Place{
 }
 
 func main() {
-	path := trip.FindItinerary(places2, trip.Place{Name: "Muzeum Teatralne", OpeningHours: "00:00-00:00", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"})
+	path, distance, duration := trip.FindItinerary(places2, trip.Place{Name: "Muzeum Teatralne", OpeningHours: "00:00-00:00", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"})
 	googleRequestsList := trip.ParseItineraryToGoogleRequests(path)
-
-	frontendResponse := trip.FrontendResponse{}
+	distanceParsed := strconv.Itoa(distance) + " m"
+	frontendResponse := trip.FrontendResponse{Distance: distanceParsed}
 	for _, googleRequest := range googleRequestsList {
 		route := trip.Route(googleRequest)
+		fmt.Printf("%# v", pretty.Formatter(route))
 		frontendResponse = trip.AppendGoogleResponse(frontendResponse, route)
 	}
+	frontendResponse.Distance = distanceParsed
+	frontendResponse.Duration = duration
+
 	fmt.Printf("%# v", pretty.Formatter(frontendResponse))
 }

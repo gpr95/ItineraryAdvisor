@@ -80,11 +80,6 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 		ArrivalTime:              "",
 		Waypoints:                []string{},
 		WaypointsTime:            []string{},
-		Language:                 "PL",
-		Region:                   "",
-		TransitMode:              "",
-		TransitRoutingPreference: "",
-		TrafficModel:             "",
 	}
 
 	for key, value := range clientRequest {
@@ -121,7 +116,7 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 	return googleRequest
 }
 
-func ParseItineraryToGoogleRequests(placesList map[Place]string) []GoogleCustomRouteRequest {
+func ParseItineraryToGoogleRequests(placesList map[Place]TransportStatistics) []GoogleCustomRouteRequest {
 
 	googleRequests := make([]GoogleCustomRouteRequest, 0)
 
@@ -132,7 +127,7 @@ func ParseItineraryToGoogleRequests(placesList map[Place]string) []GoogleCustomR
 
 	for index := 0; index < len(places)-1; index++ {
 
-		transitMode := placesList[places[index]]
+		transitMode := placesList[places[index]].TransportType
 
 		newGoogleRequest := GoogleCustomRouteRequest{
 			Origin:                   places[index].Name,
@@ -142,11 +137,6 @@ func ParseItineraryToGoogleRequests(placesList map[Place]string) []GoogleCustomR
 			ArrivalTime:              "",
 			Waypoints:                []string{},
 			WaypointsTime:            []string{},
-			Language:                 "PL",
-			Region:                   "",
-			TransitMode:              "",
-			TransitRoutingPreference: "",
-			TrafficModel:             "",
 		}
 
 		googleRequests = append(googleRequests, newGoogleRequest)
@@ -156,7 +146,6 @@ func ParseItineraryToGoogleRequests(placesList map[Place]string) []GoogleCustomR
 }
 
 func AppendGoogleResponse(base FrontendResponse, route []maps.Route) FrontendResponse {
-
 	newResponse := GetCoordinatesAndInfoFromRoute(route)
 	// fmt.Printf("%# v", pretty.Formatter(newResponse))
 	if len(base.Route) == 0 {
@@ -170,14 +159,10 @@ func AppendGoogleResponse(base FrontendResponse, route []maps.Route) FrontendRes
 
 	return FrontendResponse{
 		Route:            append(base.Route, newResponse.Route...),
-		Distance:         "-1",
-		Duration:         newResponse.Duration,
 		ArrivalTime:      newResponse.ArrivalTime,
 		DepartureTime:    newResponse.DepartureTime,
 		OverviewPolyline: maps.Polyline{Points: maps.Encode(newPolyline)},
-		// OverviewPolyline: newResponse.OverviewPolyline,
 	}
-	// return newResponse
 }
 
 func ParsePlaces(clientRequest url.Values) ([]Place, Place) {
