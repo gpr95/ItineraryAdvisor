@@ -37,7 +37,7 @@ var places2 = []trip.Place{
 }
 
 func main() {
-	path := trip.FindItinerary(places2, trip.Place{Name: "Muzeum Teatralne", OpeningHours: "00:00-00:00", Time: "0", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"})
+	path := trip.FindItinerary(places2, trip.Place{Name: "Muzeum Teatralne", OpeningHours: "00:00-00:00", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"})
 	googleRequestsList := trip.ParseItineraryToGoogleRequests(path)
 
 	frontendResponse := trip.FrontendResponse{}
