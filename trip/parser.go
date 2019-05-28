@@ -206,6 +206,7 @@ func ParsePlaces(clientRequest url.Values) ([]Place, Place) {
 			waypoints = placetList
 		}
 	}
+	waypoints = append(waypoints, source)
 	return waypoints, source
 }
 
