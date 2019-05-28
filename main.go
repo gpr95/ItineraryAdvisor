@@ -73,10 +73,10 @@ func main() {
 			}
 			fmt.Printf("%# v", pretty.Formatter(frontendResponse))
 
-			googleResponse := trip.Route(trip.ParseFrontendRequest(context.Request.PostForm))
-			response := trip.GetCoordinatesAndInfoFromRoute(googleResponse)
+			// googleResponse := trip.Route(trip.ParseFrontendRequest(context.Request.PostForm))
+			// response := trip.GetCoordinatesAndInfoFromRoute(googleResponse)
 
-			context.JSON(200, response)
+			context.JSON(200, frontendResponse)
 		})
 
 		// Serve places for given coordinates
