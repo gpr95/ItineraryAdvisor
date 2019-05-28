@@ -25,8 +25,8 @@ var places = []place{
 	{Name: "Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours: "10:00-17:00", Time: "1h", PlaceID: "ChIJPcztF2DMHkcRNTXS6e61rqo"},
 	{Name: "Muzeum Historii Akimosik", OpeningHours: "10:00-15:00", Time: "1h", PlaceID: "ChIJZ1x3xfTMHkcRAimNnQ9D9os"},
 	{Name: "Muzeum Narodowe w Warszawie", OpeningHours: "10:00-18:00", Time: "1h", PlaceID: "ChIJK6UEcvfMHkcR0iGDJoZsIgc"},
-	{Name: "Muzeum Wojska Polskiego", OpeningHours: "00:00-00:00", Time: "1h", PlaceID: "ChIJK6UEcvfMHkcRGDePQvvQqow"},
-	{Name: "Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours: "00:00-00:00", Time: "1h", PlaceID: "ChIJ7-9EM_fMHkcRVh9fPLxfJW8"},
+	{Name: "Muzeum Wojska Polskiego", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJK6UEcvfMHkcRGDePQvvQqow"},
+	{Name: "Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJ7-9EM_fMHkcRVh9fPLxfJW8"},
 	{Name: "Muzeum Teatralne", OpeningHours: "", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"},
 	{Name: "Centrum Sztuki Nowoczesnej w Warszawie Museum of Modern Art in Warsaw Oddział nad Wisłą", OpeningHours: "", Time: "1h", PlaceID: "ChIJIelSflvMHkcRRl4TMOwgVEs"},
 	{Name: "Muzeum Sztuki Nowoczesnej w Warszawie - Muzeum nad Wisłą", OpeningHours: "12:00-20:00", Time: "1h", PlaceID: "ChIJi-z6GYzMHkcRhyyhcBDZfqk"},
@@ -36,7 +36,7 @@ var places = []place{
 	{Name: "Muzeum Domków dla Lalek w Warszawie", OpeningHours: "09:00-19:00", Time: "1h", PlaceID: "ChIJG7gk7ozMHkcRMsgidKA4Hnc"},
 	{Name: "Muzeum Techniki i Przemysłu NOT", OpeningHours: "09:00-18:00", Time: "1h", PlaceID: "ChIJSS5pkozMHkcRJHxuJItu_ns"},
 	{Name: "Muzeum Ziemi PAN", OpeningHours: "09:00-16:00", Time: "1h", PlaceID: "ChIJ8-qagfnMHkcRtHfL-VZmuoA"},
-	{Name: "Muzeum Niepodległości", OpeningHours: "00:00-00:00", Time: "1h", PlaceID: "ChIJ705svGTMHkcRiL1PdybCAms"},
+	{Name: "Muzeum Niepodległości", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJ705svGTMHkcRiL1PdybCAms"},
 	{Name: "Muzeum Archidiecezji Warszawskiej", OpeningHours: "12:00-18:00", Time: "1h", PlaceID: "ChIJla37nP_MHkcRkX9wBjfhT2A"},
 }
 

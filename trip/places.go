@@ -200,13 +200,13 @@ func getOpeningHours(place maps.PlaceDetailsResult, departureTime time.Time) str
 			openingHours := strings.Replace(day, weekdayMap[weekDay]+": ", "", 1)
 			replacedDash := strings.Replace(openingHours, "–", "-", 1)
 			if openingHours == "Zamknięte" {
-				return "00:00-00:00"
+				return "00:00-24:00"
 			}
 			return replacedDash
 		}
 	}
 
-	return "00:00-00:00"
+	return "00:00-24:00"
 }
 
 func lookupInputType(inputType string) maps.FindPlaceFromTextInputType {

@@ -169,7 +169,7 @@ func ParsePlaces(clientRequest url.Values) ([]Place, Place) {
 
 	source := Place{
 		Name:         "",
-		OpeningHours: "00:00-00:00",
+		OpeningHours: "00:00-24:00",
 		Time:         "0",
 		PlaceID:      "",
 	}
