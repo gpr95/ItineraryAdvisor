@@ -137,14 +137,14 @@ func ParseItineraryToGoogleRequests(placesList map[Place]string) []GoogleCustomR
 		newGoogleRequest := GoogleCustomRouteRequest{
 			Origin:                   places[index].Name,
 			Destination:              places[index+1].Name,
-			Mode:                     []string{},
+			Mode:                     []string{transitMode},
 			DepartureTime:            "",
 			ArrivalTime:              "",
 			Waypoints:                []string{},
 			WaypointsTime:            []string{},
 			Language:                 "PL",
 			Region:                   "",
-			TransitMode:              transitMode,
+			TransitMode:              "",
 			TransitRoutingPreference: "",
 			TrafficModel:             "",
 		}
@@ -171,11 +171,13 @@ func AppendGoogleResponse(base FrontendResponse, route []maps.Route) FrontendRes
 	return FrontendResponse{
 		Route:            append(base.Route, newResponse.Route...),
 		Distance:         "-1",
-		Duration:         base.Duration + newResponse.Duration,
+		Duration:         newResponse.Duration,
 		ArrivalTime:      newResponse.ArrivalTime,
-		DepartureTime:    base.DepartureTime,
+		DepartureTime:    newResponse.DepartureTime,
 		OverviewPolyline: maps.Polyline{Points: maps.Encode(newPolyline)},
+		// OverviewPolyline: newResponse.OverviewPolyline,
 	}
+	// return newResponse
 }
 
 func ParsePlaces(clientRequest url.Values) ([]Place, Place) {

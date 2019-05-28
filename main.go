@@ -69,7 +69,7 @@ func main() {
 
 			frontendResponse := trip.FrontendResponse{}
 			for _, googleRequest := range googleRequestsList {
-				trip.AppendGoogleResponse(frontendResponse, trip.Route(googleRequest))
+				frontendResponse = trip.AppendGoogleResponse(frontendResponse, trip.Route(googleRequest))
 			}
 			fmt.Printf("%# v", pretty.Formatter(frontendResponse))
 
