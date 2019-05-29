@@ -163,9 +163,9 @@ func GetWightsBetweenPlaces(placesIDs []Place, modes []string) map[Place]map[Pla
 
 		for idxDistance, row := range resp.Rows[idx].Elements{
 			if placesIDs[idxDistance] != placeObject {
-				wight := row.Duration.Minutes() + float64(row.Distance.Meters) +
-					parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, row.Duration.Minutes() + float64(row.Distance.Meters)) +
-					parseTimeToWight(placesIDs[idxDistance].Time, row.Duration.Minutes() + float64(row.Distance.Meters))
+				wight := row.Duration.Minutes() + 10*float64(row.Distance.Meters) +
+					parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, row.Duration.Minutes()) +
+					parseTimeToWight(placesIDs[idxDistance].Time, row.Duration.Minutes())
 				timeRoute := row.Duration
 				statistics := RouteStatistics{Distance: row.Distance.Meters, Time: timeRoute, Wight: wight, Transport: modesList[idxDistance]}
 
