@@ -23,6 +23,9 @@ export default class Steps extends Component {
             dataField: 'Instruction',
             text: 'Instruction',
             formatter: this.instructionFormatter
+        }, {
+            dataField: 'Mode',
+            text: 'Mode',
         }];
     }
 

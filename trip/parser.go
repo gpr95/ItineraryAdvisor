@@ -26,6 +26,7 @@ type FrontendResponse struct {
 type Step struct {
 	Location    maps.LatLng
 	Instruction string
+	Mode        string
 }
 
 type waypoint struct {
@@ -55,7 +56,7 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 			output.ArrivalTime = leg.ArrivalTime
 			output.DepartureTime = leg.DepartureTime
 			for _, step := range leg.Steps {
-				newStep := Step{Location: step.StartLocation, Instruction: step.HTMLInstructions}
+				newStep := Step{Location: step.StartLocation, Instruction: step.HTMLInstructions, Mode: "drivewlaking"}
 				output.Route = append(output.Route, newStep)
 			}
 		}
@@ -74,13 +75,13 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 
 	googleRequest := GoogleCustomRouteRequest{
-		Origin:                   "",
-		Destination:              "",
-		Mode:                     []string{},
-		DepartureTime:            "",
-		ArrivalTime:              "",
-		Waypoints:                []string{},
-		WaypointsTime:            []string{},
+		Origin:        "",
+		Destination:   "",
+		Mode:          []string{},
+		DepartureTime: "",
+		ArrivalTime:   "",
+		Waypoints:     []string{},
+		WaypointsTime: []string{},
 	}
 
 	for key, value := range clientRequest {
@@ -138,13 +139,13 @@ func ParseItineraryToGoogleRequests(placesList map[Place]TransportStatistics) []
 		transitMode := placesList[places[index]].TransportType
 
 		newGoogleRequest := GoogleCustomRouteRequest{
-			Origin:                   places[index].Name,
-			Destination:              places[index+1].Name,
-			Mode:                     []string{transitMode},
-			DepartureTime:            "",
-			ArrivalTime:              "",
-			Waypoints:                []string{},
-			WaypointsTime:            []string{},
+			Origin:        places[index].Name,
+			Destination:   places[index+1].Name,
+			Mode:          []string{transitMode},
+			DepartureTime: "",
+			ArrivalTime:   "",
+			Waypoints:     []string{},
+			WaypointsTime: []string{},
 		}
 
 		googleRequests = append(googleRequests, newGoogleRequest)
@@ -183,8 +184,6 @@ func ParsePlaces(clientRequest url.Values) ([]Place, Place) {
 	}
 
 	waypoints := make([]Place, 0)
-
-
 
 	for key, value := range clientRequest {
 		fmt.Println(key, value)
