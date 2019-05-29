@@ -2,7 +2,6 @@ package trip
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"strconv"
 	"strings"
@@ -34,7 +33,7 @@ func FindItinerary(waypoints []Place, source Place, departure string, modes []st
 		wight := math.MaxFloat64
 		statistics := TransportStatistics{chooseTransportBetweenPlaces(initNode, nextNode), time.Duration(0), 0}
 		for k, v := range wayPointsWithWights[initNode] {
-			if v.Wight < wight {
+			if v.Wight < wight || v == (RouteStatistics{}) {
 				wight = v.Wight
 				userSittingInPlaceTime, _ := time.ParseDuration(k.Time)
 				statistics = TransportStatistics{v.Transport, v.Time + userSittingInPlaceTime, v.Distance}
@@ -43,8 +42,8 @@ func FindItinerary(waypoints []Place, source Place, departure string, modes []st
 		}
 
 		openingHours, closeHours := OpeningHoursToMinutes(nextNode.OpeningHours)
-		if nextNode == initNode && CustomTimeToMinutes(departure) > closeHours && CustomTimeToMinutes(departure) < openingHours {
-			log.Fatalf("fatal error: Algorithm not working...")
+		if nextNode == initNode || CustomTimeToMinutes(departure) > closeHours || CustomTimeToMinutes(departure) < openingHours {
+			return path, distanceSum, durationSum, departure
 		}
 		if nextNode != initNode {
 			distanceSum = distanceSum + statistics.DistanceMeters
@@ -54,7 +53,9 @@ func FindItinerary(waypoints []Place, source Place, departure string, modes []st
 		departure = MinutesToCustomTime(CustomTimeToMinutes(departure) + int(statistics.TimeDuration.Minutes()))
 		initNode = nextNode
 
-
+		for _, destinations := range wayPointsWithWights {
+			delete(destinations, initNode)
+		}
 	}
 
 	return path, distanceSum, durationSum, departure

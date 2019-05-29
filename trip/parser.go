@@ -139,13 +139,13 @@ func ParseItineraryToGoogleRequests(placesList map[Place]TransportStatistics) []
 		places = append(places, key)
 	}
 
-	for index := 0; index < len(places)-1; index++ {
+	for index := 1; index < len(places); index++ {
 
 		transitMode := placesList[places[index]].TransportType
 
 		newGoogleRequest := GoogleCustomRouteRequest{
-			Origin:        places[index].Name,
-			Destination:   places[index+1].Name,
+			Origin:        places[index-1].Name,
+			Destination:   places[index].Name,
 			Mode:          []string{transitMode},
 			DepartureTime: "",
 			ArrivalTime:   "",
