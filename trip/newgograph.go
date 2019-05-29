@@ -24,6 +24,10 @@ func FindItinerary(waypoints []Place, source Place, departure string, modes []st
 	distanceSum := 0
 	durationSum := time.Duration(0)
 	initNode := source
+	// Remove initNode from destinations of other nodes
+	for _, destinations := range wayPointsWithWights {
+		delete(destinations, initNode)
+	}
 	path[source] = TransportStatistics{chooseTransportBetweenPlaces(initNode, initNode), time.Duration(0), 0}
 	for i := 0; i < len(waypoints); i++  {
 		nextNode := initNode
@@ -42,16 +46,15 @@ func FindItinerary(waypoints []Place, source Place, departure string, modes []st
 		if nextNode == initNode && CustomTimeToMinutes(departure) > closeHours && CustomTimeToMinutes(departure) < openingHours {
 			log.Fatalf("fatal error: Algorithm not working...")
 		}
-		distanceSum = distanceSum + statistics.DistanceMeters
+		if nextNode != initNode {
+			distanceSum = distanceSum + statistics.DistanceMeters
+		}
 		durationSum = durationSum + statistics.TimeDuration
 		path[nextNode] = statistics
 		departure = MinutesToCustomTime(CustomTimeToMinutes(departure) + int(statistics.TimeDuration.Minutes()))
 		initNode = nextNode
 
-		// Remove initNode from destinations of other nodes
-		for _, destinations := range wayPointsWithWights {
-			delete(destinations, initNode)
-		}
+
 	}
 
 	return path, distanceSum, durationSum, departure
