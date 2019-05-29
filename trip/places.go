@@ -122,12 +122,18 @@ func GetWightsBetweenPlaces(placesIDs []Place, modes []string) map[Place]map[Pla
 		}
 
 	}
+	if len(placesIDsChnged) == 0 {
+		return make(map[Place]map[Place]RouteStatistics)
+	}
 	fmt.Printf("%# v", pretty.Formatter(placesIDsChnged))
 	distanceMatrixRequest.Origins = placesIDsChnged
 	distanceMatrixRequest.Destinations = placesIDsChnged
 
 	distanceMatrixRequest.Mode = maps.TravelModeWalking
 	distanceMatrixRequest.Units = maps.UnitsMetric
+	if len(modes) == 0 {
+		return make(map[Place]map[Place]RouteStatistics)
+	}
 	lookupModeDistanceMatrix(modes[0], distanceMatrixRequest)
 	var modesList []string
 

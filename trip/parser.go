@@ -112,13 +112,18 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 				googleRequest.Waypoints = append(googleRequest.Waypoints, value.Name)
 				googleRequest.WaypointsTime = append(googleRequest.WaypointsTime, value.Time)
 			}
-			googleRequest.Destination = googleRequest.Waypoints[len(googleRequest.Waypoints)-1]
+			if len(googleRequest.Waypoints) > 0 {
+				googleRequest.Destination = googleRequest.Waypoints[len(googleRequest.Waypoints)-1]
+			}
 		}
 	}
 	return googleRequest
 }
 
 func ParseDateToCustomTimeString(date string) string {
+	if date == "" {
+		return "00:00"
+	}
 	removedDate := strings.Split(date, " ")[4]
 	removedSeconds := strings.Split(removedDate, ":")[0] + ":" + strings.Split(removedDate, ":")[1]
 
