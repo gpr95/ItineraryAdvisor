@@ -40,7 +40,7 @@ type lookupModeStruct struct {
 }
 
 // GetCoordinatesAndInfoFromRoute creates response for frontend with route and some info
-func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
+func GetCoordinatesAndInfoFromRoute(routes []maps.Route, mode []string) FrontendResponse {
 	var output FrontendResponse
 	for _, route := range routes {
 		output.OverviewPolyline = route.OverviewPolyline
@@ -56,7 +56,7 @@ func GetCoordinatesAndInfoFromRoute(routes []maps.Route) FrontendResponse {
 			output.ArrivalTime = leg.ArrivalTime
 			output.DepartureTime = leg.DepartureTime
 			for _, step := range leg.Steps {
-				newStep := Step{Location: step.StartLocation, Instruction: step.HTMLInstructions, Mode: "drivewlaking"}
+				newStep := Step{Location: step.StartLocation, Instruction: step.HTMLInstructions, Mode: mode[0]}
 				output.Route = append(output.Route, newStep)
 			}
 		}
@@ -154,8 +154,8 @@ func ParseItineraryToGoogleRequests(placesList map[Place]TransportStatistics) []
 	return googleRequests
 }
 
-func AppendGoogleResponse(base FrontendResponse, route []maps.Route) FrontendResponse {
-	newResponse := GetCoordinatesAndInfoFromRoute(route)
+func AppendGoogleResponse(base FrontendResponse, route []maps.Route, mode []string) FrontendResponse {
+	newResponse := GetCoordinatesAndInfoFromRoute(route, mode)
 	// fmt.Printf("%# v", pretty.Formatter(newResponse))
 	if len(base.Route) == 0 {
 		return newResponse

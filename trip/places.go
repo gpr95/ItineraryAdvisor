@@ -133,8 +133,10 @@ func GetWightsBetweenPlaces(placesIDs []Place, modes []string) map[Place]map[Pla
 
 	resp ,err := client.DistanceMatrix(context.Background(), distanceMatrixRequest)
 	check(err)
-	for range resp.Rows {
-		modesList = append(modesList, modes[0])
+	for _,row := range resp.Rows {
+		for range row.Elements {
+			modesList = append(modesList, modes[0])
+		}
 	}
 
 	for _, mode := range modes[1:] {
@@ -142,8 +144,10 @@ func GetWightsBetweenPlaces(placesIDs []Place, modes []string) map[Place]map[Pla
 		respTemp, err := client.DistanceMatrix(context.Background(), distanceMatrixRequest)
 		check(err)
 		resp.Rows = append(resp.Rows, respTemp.Rows...)
-		for range respTemp.Rows {
-			modesList = append(modesList, mode)
+		for _,row := range respTemp.Rows {
+			for range row.Elements {
+				modesList = append(modesList, mode)
+			}
 		}
 	}
 	statistics := make(map[Place]map[Place]RouteStatistics)

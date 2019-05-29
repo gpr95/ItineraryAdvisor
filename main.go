@@ -70,7 +70,7 @@ func main() {
 			// Append all rotues
 			frontendResponse := trip.FrontendResponse{}
 			for _, googleRequest := range googleRequestsList {
-				frontendResponse = trip.AppendGoogleResponse(frontendResponse, trip.Route(googleRequest))
+				frontendResponse = trip.AppendGoogleResponse(frontendResponse, trip.Route(googleRequest), googleRequest.Mode)
 			}
 			if trip.CustomTimeToMinutes(arrivalTime) > trip.CustomTimeToMinutes(trip.ParseDateToCustomTimeString(googleRequest.ArrivalTime)) {
 				frontendResponse.Distance = "Not possible"
