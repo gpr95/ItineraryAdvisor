@@ -48,8 +48,8 @@ func FindItinerary(waypoints []Place, source Place, departure string, modes []st
 		}
 		if nextNode != initNode {
 			distanceSum = distanceSum + statistics.DistanceMeters
+			durationSum = durationSum + statistics.TimeDuration
 		}
-		durationSum = durationSum + statistics.TimeDuration
 		path[nextNode] = statistics
 		departure = MinutesToCustomTime(CustomTimeToMinutes(departure) + int(statistics.TimeDuration.Minutes()))
 		initNode = nextNode
