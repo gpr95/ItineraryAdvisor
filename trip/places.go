@@ -41,6 +41,7 @@ type RouteStatistics struct {
 	Wight float64
 	Distance int
 	Time time.Duration
+	Transport string
 }
 
 func PlaceFinder(request GoogleCustomPlacesRequest) maps.PlaceDetailsResult {
@@ -104,7 +105,7 @@ func NearbySearch(request GoogleCustomNearbySearchRequest) []Place {
 }
 
 
-func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]RouteStatistics{
+func GetWightsBetweenPlaces(placesIDs []Place, modes []string) map[Place]map[Place]RouteStatistics{
 	client := getGoogleClient()
 
 	distanceMatrixRequest := &maps.DistanceMatrixRequest{
@@ -127,10 +128,24 @@ func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]RouteStatisti
 
 	distanceMatrixRequest.Mode = maps.TravelModeWalking
 	distanceMatrixRequest.Units = maps.UnitsMetric
+	lookupModeDistanceMatrix(modes[0], distanceMatrixRequest)
+	var modesList []string
 
-	resp, err := client.DistanceMatrix(context.Background(), distanceMatrixRequest)
+	resp ,err := client.DistanceMatrix(context.Background(), distanceMatrixRequest)
 	check(err)
+	for range resp.Rows {
+		modesList = append(modesList, modes[0])
+	}
 
+	for _, mode := range modes[1:] {
+		lookupModeDistanceMatrix(mode, distanceMatrixRequest)
+		respTemp, err := client.DistanceMatrix(context.Background(), distanceMatrixRequest)
+		check(err)
+		resp.Rows = append(resp.Rows, respTemp.Rows...)
+		for range respTemp.Rows {
+			modesList = append(modesList, mode)
+		}
+	}
 	statistics := make(map[Place]map[Place]RouteStatistics)
 
 	for idx, placeObject := range placesIDs {
@@ -138,11 +153,11 @@ func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]RouteStatisti
 
 		for idxDistance, row := range resp.Rows[idx].Elements{
 			if placesIDs[idxDistance] != placeObject {
-				wight := float64(row.Distance.Meters) +
-					parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, row.Distance.Meters) +
-					parseTimeToWight(placesIDs[idxDistance].Time, row.Distance.Meters)
-				time := row.Duration
-				statistics := RouteStatistics{Distance: row.Distance.Meters, Time: time, Wight: wight}
+				wight := row.Duration.Minutes() + float64(row.Distance.Meters) +
+					parseOpenHourToWight(placesIDs[idxDistance].OpeningHours, row.Duration.Minutes() + float64(row.Distance.Meters)) +
+					parseTimeToWight(placesIDs[idxDistance].Time, row.Duration.Minutes() + float64(row.Distance.Meters))
+				timeRoute := row.Duration
+				statistics := RouteStatistics{Distance: row.Distance.Meters, Time: timeRoute, Wight: wight, Transport: modesList[idxDistance]}
 
 				innerDistances[placesIDs[idxDistance]] = statistics
 			}
@@ -155,7 +170,26 @@ func GetWightsBetweenPlaces(placesIDs []Place) map[Place]map[Place]RouteStatisti
 	return statistics
 }
 
-func parseTimeToWight(stayingTime string, distance int) float64 {
+
+func lookupModeDistanceMatrix(mode string, r *maps.DistanceMatrixRequest) {
+	switch mode {
+	case "driving":
+		r.Mode = maps.TravelModeDriving
+	case "walking":
+		r.Mode = maps.TravelModeWalking
+	case "bicycling":
+		r.Mode = maps.TravelModeBicycling
+	case "transit":
+		r.Mode = maps.TravelModeTransit
+	case "":
+		// ignore
+	default:
+		log.Fatalf("Unknown mode %s", mode)
+	}
+}
+
+
+func parseTimeToWight(stayingTime string, wight float64) float64 {
 	reg, err := regexp.Compile("[^0-9]+")
 	if err != nil {
 		log.Fatal(err)
@@ -163,16 +197,16 @@ func parseTimeToWight(stayingTime string, distance int) float64 {
 	processedString := reg.ReplaceAllString(stayingTime, "")
 
 	hours, _ := strconv.Atoi(processedString)
-	fmt.Printf("%s -> %f, distance: %d\n ", stayingTime, -(float64(hours)/24.0)*float64(distance), distance)
-	return -(float64(hours) / 24.0) * float64(distance)
+	fmt.Printf("%s -> %f, distance: %f\n ", stayingTime, -(float64(hours)/24.0)*wight, wight)
+	return -(float64(hours) / 10.0) * wight
 }
 
-func parseOpenHourToWight(openingHours string, distance int) float64 {
+func parseOpenHourToWight(openingHours string, wigth float64) float64 {
 	closingTime := strings.Split(openingHours, "-")[1]
 	closingHourStr := strings.Split(closingTime, ":")[0]
 	closingHour, _ := strconv.Atoi(closingHourStr)
-	fmt.Printf("%s -> %f, distance: %d\n ", openingHours, -(float64(closingHour)/24.0)*float64(distance), distance)
-	return -(float64(closingHour) / 24.0) * float64(distance)
+	fmt.Printf("%s -> %f, distance: %f\n ", openingHours, -(float64(closingHour)/24.0)*wigth, wigth)
+	return -float64(closingHour)/2 * wigth
 }
 
 func getFormattedAddress(place maps.PlaceDetailsResult) string {

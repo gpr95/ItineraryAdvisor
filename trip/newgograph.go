@@ -15,8 +15,8 @@ type TransportStatistics struct {
 	DistanceMeters int
 }
 
-func FindItinerary(waypoints []Place, source Place, departure string) (map[Place]TransportStatistics, int, time.Duration, string){
-	wayPointsWithWights := GetWightsBetweenPlaces(waypoints)
+func FindItinerary(waypoints []Place, source Place, departure string, modes []string) (map[Place]TransportStatistics, int, time.Duration, string){
+	wayPointsWithWights := GetWightsBetweenPlaces(waypoints, modes)
 	//wayPointsWithWights := MOCK_MAP
 
 	path := make(map[Place]TransportStatistics)
@@ -32,13 +32,13 @@ func FindItinerary(waypoints []Place, source Place, departure string) (map[Place
 		for k, v := range wayPointsWithWights[initNode] {
 			if v.Wight < wight {
 				wight = v.Wight
-				statistics = TransportStatistics{chooseTransportBetweenPlaces(initNode, nextNode), v.Time, v.Distance}
+				statistics = TransportStatistics{v.Transport, v.Time, v.Distance}
 				nextNode = k
 			}
 		}
 
-		_, close := OpeningHoursToMinutes(nextNode.OpeningHours)
-		if nextNode == initNode && CustomTimeToMinutes(departure) > close {
+		_, closeHours := OpeningHoursToMinutes(nextNode.OpeningHours)
+		if nextNode == initNode && CustomTimeToMinutes(departure) > closeHours {
 			log.Fatalf("fatal error: Algorithm not working...")
 		}
 		distanceSum = distanceSum + statistics.DistanceMeters

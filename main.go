@@ -59,7 +59,7 @@ func main() {
 
 			// Run algorithm
 			path, distanceSum, durationSum, arrivalTime  := trip.FindItinerary(waypoints, source,
-				trip.ParseDateToCustomTimeString(googleRequest.DepartureTime))
+				trip.ParseDateToCustomTimeString(googleRequest.DepartureTime), googleRequest.Mode)
 			distanceParsed := strconv.Itoa(distanceSum) + " m"
 			fmt.Printf("%# v", pretty.Formatter(path))
 
@@ -98,8 +98,5 @@ func main() {
 	_ = router.Run(":8000")
 }
 
-// TODO Use trip.Dijkstra from debug.go in POST request and ask google API for every route to get path
-// TODO Fetch all responses into single one and send to frontend
-// TODO Add waypointstime range (not single time) 3h 15m -> 3h - 4h
-
-// TODO implement Our Algorithm (get proper weights for each waypoint (get lat lon and calculate distances, add places openhours and waypointtimes range
+// TODO check solution If place is Open when we get there
+// TODO 
