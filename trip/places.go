@@ -194,6 +194,12 @@ func lookupModeDistanceMatrix(mode string, r *maps.DistanceMatrixRequest) {
 
 
 func parseTimeToWight(stayingTime string, wight float64) float64 {
+	hours := timeUserToHours(stayingTime)
+	fmt.Printf("%s -> %f, distance: %f\n ", stayingTime, -(float64(hours)/24.0)*wight, wight)
+	return -(float64(hours) / 10.0) * wight
+}
+
+func timeUserToHours(stayingTime string) int {
 	reg, err := regexp.Compile("[^0-9]+")
 	if err != nil {
 		log.Fatal(err)
@@ -201,8 +207,8 @@ func parseTimeToWight(stayingTime string, wight float64) float64 {
 	processedString := reg.ReplaceAllString(stayingTime, "")
 
 	hours, _ := strconv.Atoi(processedString)
-	fmt.Printf("%s -> %f, distance: %f\n ", stayingTime, -(float64(hours)/24.0)*wight, wight)
-	return -(float64(hours) / 10.0) * wight
+
+	return hours
 }
 
 func parseOpenHourToWight(openingHours string, wigth float64) float64 {

@@ -32,13 +32,14 @@ func FindItinerary(waypoints []Place, source Place, departure string, modes []st
 		for k, v := range wayPointsWithWights[initNode] {
 			if v.Wight < wight {
 				wight = v.Wight
-				statistics = TransportStatistics{v.Transport, v.Time, v.Distance}
+				userSittingInPlaceTime, _ := time.ParseDuration(k.Time)
+				statistics = TransportStatistics{v.Transport, v.Time + userSittingInPlaceTime, v.Distance}
 				nextNode = k
 			}
 		}
 
-		_, closeHours := OpeningHoursToMinutes(nextNode.OpeningHours)
-		if nextNode == initNode && CustomTimeToMinutes(departure) > closeHours {
+		openingHours, closeHours := OpeningHoursToMinutes(nextNode.OpeningHours)
+		if nextNode == initNode && CustomTimeToMinutes(departure) > closeHours && CustomTimeToMinutes(departure) < openingHours {
 			log.Fatalf("fatal error: Algorithm not working...")
 		}
 		distanceSum = distanceSum + statistics.DistanceMeters
