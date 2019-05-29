@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -116,6 +117,13 @@ func ParseFrontendRequest(clientRequest url.Values) GoogleCustomRouteRequest {
 	return googleRequest
 }
 
+func ParseDateToCustomTimeString(date string) string {
+	removedDate := strings.Split(date, " ")[4]
+	removedSeconds := strings.Split(removedDate, ":")[0] + ":" + strings.Split(removedDate, ":")[1]
+
+	return removedSeconds
+}
+
 func ParseItineraryToGoogleRequests(placesList map[Place]TransportStatistics) []GoogleCustomRouteRequest {
 
 	googleRequests := make([]GoogleCustomRouteRequest, 0)
@@ -176,6 +184,8 @@ func ParsePlaces(clientRequest url.Values) ([]Place, Place) {
 
 	waypoints := make([]Place, 0)
 
+
+
 	for key, value := range clientRequest {
 		fmt.Println(key, value)
 		if value[0] == "undefined" || value[0] == "null" {
@@ -191,7 +201,14 @@ func ParsePlaces(clientRequest url.Values) ([]Place, Place) {
 			waypoints = placetList
 		}
 	}
-	waypoints = append(waypoints, source)
+	for _, place := range waypoints {
+		if place.Name == source.Name {
+			source = place
+			break
+		}
+	}
+
+	waypoints = append(waypoints)
 	return waypoints, source
 }
 

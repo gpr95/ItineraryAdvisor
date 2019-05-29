@@ -17,10 +17,7 @@
 package main
 
 import (
-	"fmt"
 	"github.com/gpr95/ItineraryAdvisor/trip"
-	"github.com/kr/pretty"
-	"strconv"
 )
 
 var places2 = []trip.Place{
@@ -36,19 +33,19 @@ var places2 = []trip.Place{
 	{Name: "Muzeum Teatralne", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"},
 }
 
-func main() {
-	path, distance, duration, finishHour := trip.FindItinerary(places2, trip.Place{Name: "Muzeum Teatralne", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}, "09:00")
-	googleRequestsList := trip.ParseItineraryToGoogleRequests(path)
-	distanceParsed := strconv.Itoa(distance) + " m"
-	frontendResponse := trip.FrontendResponse{Distance: distanceParsed}
-	for _, googleRequest := range googleRequestsList {
-		route := trip.Route(googleRequest)
-		fmt.Printf("%# v", pretty.Formatter(route))
-		frontendResponse = trip.AppendGoogleResponse(frontendResponse, route)
-	}
-	frontendResponse.Distance = distanceParsed
-	frontendResponse.Duration = duration
-
-	fmt.Printf("%# v", pretty.Formatter(frontendResponse))
-	fmt.Printf("%# v", pretty.Formatter(finishHour))
-}
+//func main() {
+//	path, distance, duration, finishHour := trip.FindItinerary(places2, trip.Place{Name: "Muzeum Teatralne", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"}, "09:00")
+//	googleRequestsList := trip.ParseItineraryToGoogleRequests(path)
+//	distanceParsed := strconv.Itoa(distance) + " m"
+//	frontendResponse := trip.FrontendResponse{Distance: distanceParsed}
+//	for _, googleRequest := range googleRequestsList {
+//		route := trip.Route(googleRequest)
+//		fmt.Printf("%# v", pretty.Formatter(route))
+//		frontendResponse = trip.AppendGoogleResponse(frontendResponse, route)
+//	}
+//	frontendResponse.Distance = distanceParsed
+//	frontendResponse.Duration = duration
+//
+//	fmt.Printf("%# v", pretty.Formatter(frontendResponse))
+//	fmt.Printf("%# v", pretty.Formatter(finishHour))
+//}

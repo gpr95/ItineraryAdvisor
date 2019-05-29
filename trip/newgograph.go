@@ -16,19 +16,19 @@ type TransportStatistics struct {
 }
 
 func FindItinerary(waypoints []Place, source Place, departure string) (map[Place]TransportStatistics, int, time.Duration, string){
-	//wayPointsWithWights := GetWightsBetweenPlaces(waypoints)
-	wayPointsWithWights := MOCK_MAP
+	wayPointsWithWights := GetWightsBetweenPlaces(waypoints)
+	//wayPointsWithWights := MOCK_MAP
 
 	path := make(map[Place]TransportStatistics)
 
 	distanceSum := 0
 	durationSum := time.Duration(0)
 	initNode := source
-	path[source] = TransportStatistics{"None", time.Duration(0), 0}
+	path[source] = TransportStatistics{chooseTransportBetweenPlaces(initNode, initNode), time.Duration(0), 0}
 	for i := 0; i < len(waypoints); i++  {
 		nextNode := initNode
 		wight := math.MaxFloat64
-		statistics := TransportStatistics{"None", time.Duration(0), 0}
+		statistics := TransportStatistics{chooseTransportBetweenPlaces(initNode, nextNode), time.Duration(0), 0}
 		for k, v := range wayPointsWithWights[initNode] {
 			if v.Wight < wight {
 				wight = v.Wight

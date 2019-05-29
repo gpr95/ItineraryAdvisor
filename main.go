@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
@@ -17,27 +19,17 @@ type place struct {
 	PlaceID      string
 }
 
-var places = []place{
+var places = []trip.Place{
 	{Name: "Centrum Pieniądza NBP im. Sławomira S. Skrzypka", OpeningHours: "10:00-18:00", Time: "1h", PlaceID: "ChIJV9L_QvXMHkcR4fE_qS-WapY"},
 	{Name: "Biuro Wystaw / Fundacja Polskiej Sztuki Nowoczesnej", OpeningHours: "11:00-18:00", Time: "1h", PlaceID: "ChIJj1ffSl7MHkcRBfCWp3BZgGc"},
 	{Name: "Muzeum Fryderyka Chopina w Warszawie", OpeningHours: "11:00-20:00", Time: "1h", PlaceID: "ChIJKbVhrFjMHkcRdbMJyIdXC34"},
-	{Name: "Muzeum Uniwersytetu Warszawskiego", OpeningHours: "", Time: "1h", PlaceID: "ChIJnT24I17MHkcR8TirCHITPHM"},
+	{Name: "Muzeum Uniwersytetu Warszawskiego", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJnT24I17MHkcR8TirCHITPHM"},
 	{Name: "Państwowe Muzeum Etnograficzne w Warszawie", OpeningHours: "10:00-17:00", Time: "1h", PlaceID: "ChIJPcztF2DMHkcRNTXS6e61rqo"},
 	{Name: "Muzeum Historii Akimosik", OpeningHours: "10:00-15:00", Time: "1h", PlaceID: "ChIJZ1x3xfTMHkcRAimNnQ9D9os"},
 	{Name: "Muzeum Narodowe w Warszawie", OpeningHours: "10:00-18:00", Time: "1h", PlaceID: "ChIJK6UEcvfMHkcR0iGDJoZsIgc"},
 	{Name: "Muzeum Wojska Polskiego", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJK6UEcvfMHkcRGDePQvvQqow"},
 	{Name: "Muzeum Warszawskiego Przedsiębiorstwa Geodezyjnego", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJ7-9EM_fMHkcRVh9fPLxfJW8"},
-	{Name: "Muzeum Teatralne", OpeningHours: "", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"},
-	{Name: "Centrum Sztuki Nowoczesnej w Warszawie Museum of Modern Art in Warsaw Oddział nad Wisłą", OpeningHours: "", Time: "1h", PlaceID: "ChIJIelSflvMHkcRRl4TMOwgVEs"},
-	{Name: "Muzeum Sztuki Nowoczesnej w Warszawie - Muzeum nad Wisłą", OpeningHours: "12:00-20:00", Time: "1h", PlaceID: "ChIJi-z6GYzMHkcRhyyhcBDZfqk"},
-	{Name: "Muzeum Karykatury im. E. Lipińskiego", OpeningHours: "10:00-18:00", Time: "1h", PlaceID: "ChIJ3SDb8mbMHkcRW0EyA4S7MCw"},
-	{Name: "Muzeum Wódki", OpeningHours: "11:00-18:00", Time: "1h", PlaceID: "ChIJ48K19WPMHkcRaZQ0RMUYAkg"},
-	{Name: "Park Miniatur Województwa Mazowieckiego", OpeningHours: "11:00-19:00", Time: "1h", PlaceID: "ChIJYdb1bGPMHkcRIJ3LWTCSNHw"},
-	{Name: "Muzeum Domków dla Lalek w Warszawie", OpeningHours: "09:00-19:00", Time: "1h", PlaceID: "ChIJG7gk7ozMHkcRMsgidKA4Hnc"},
-	{Name: "Muzeum Techniki i Przemysłu NOT", OpeningHours: "09:00-18:00", Time: "1h", PlaceID: "ChIJSS5pkozMHkcRJHxuJItu_ns"},
-	{Name: "Muzeum Ziemi PAN", OpeningHours: "09:00-16:00", Time: "1h", PlaceID: "ChIJ8-qagfnMHkcRtHfL-VZmuoA"},
-	{Name: "Muzeum Niepodległości", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJ705svGTMHkcRiL1PdybCAms"},
-	{Name: "Muzeum Archidiecezji Warszawskiej", OpeningHours: "12:00-18:00", Time: "1h", PlaceID: "ChIJla37nP_MHkcRkX9wBjfhT2A"},
+	{Name: "Muzeum Teatralne", OpeningHours: "00:00-24:00", Time: "1h", PlaceID: "ChIJbQJ-qWbMHkcRrrYzTC9PLNw"},
 }
 
 func main() {
@@ -57,25 +49,39 @@ func main() {
 				println("error on parse multipart form map: %v", err)
 			}
 
+			// Map request objects to places
 			waypoints, source := trip.ParsePlaces(context.Request.PostForm)
 			fmt.Printf("%# v", pretty.Formatter(waypoints))
 			fmt.Printf("%# v", pretty.Formatter(source))
 
-			path := trip.FindItinerary(waypoints, source)
+			// Get google request from request
+			googleRequest := trip.ParseFrontendRequest(context.Request.PostForm)
+
+			// Run algorithm
+			path, distanceSum, durationSum, arrivalTime  := trip.FindItinerary(waypoints, source,
+				trip.ParseDateToCustomTimeString(googleRequest.DepartureTime))
+			distanceParsed := strconv.Itoa(distanceSum) + " m"
 			fmt.Printf("%# v", pretty.Formatter(path))
 
+			// Map solution to google request (to draw on map)
 			googleRequestsList := trip.ParseItineraryToGoogleRequests(path)
 			fmt.Printf("%# v", pretty.Formatter(googleRequestsList))
 
+			// Append all rotues
 			frontendResponse := trip.FrontendResponse{}
 			for _, googleRequest := range googleRequestsList {
 				frontendResponse = trip.AppendGoogleResponse(frontendResponse, trip.Route(googleRequest))
 			}
+			if trip.CustomTimeToMinutes(arrivalTime) > trip.CustomTimeToMinutes(trip.ParseDateToCustomTimeString(googleRequest.ArrivalTime)) {
+				frontendResponse.Distance = "Not possible"
+				frontendResponse.Duration = time.Duration(0)
+			} else {
+				frontendResponse.Distance = distanceParsed
+				frontendResponse.Duration = durationSum
+			}
 			fmt.Printf("%# v", pretty.Formatter(frontendResponse))
 
-			// googleResponse := trip.Route(trip.ParseFrontendRequest(context.Request.PostForm))
-			// response := trip.GetCoordinatesAndInfoFromRoute(googleResponse)
-
+			// Send response
 			context.JSON(200, frontendResponse)
 		})
 
