@@ -6,6 +6,7 @@ import Col from 'react-bootstrap/Col';
 import MyMapComponent from './Map.js';
 import Steps from './Steps.js';
 import Waypoints from './Waypoints.js';
+import WaypointChooser from './WaypointChooser.js';
 import moment from 'moment';
 
 export default class MapContainer extends React.Component {
@@ -104,8 +105,9 @@ export default class MapContainer extends React.Component {
 
             <Row className="flex-grow-1" >
                 <Col md={3}>
-                    <UserInput submit={this.submit} waypoints={this.state.waypoints} />
-                    <Waypoints waypointsFunc={this.setWaypoints} places={this.state.places} getWaypoints={this.getWaypoints} placesFunc={this.setSelectedPlacesTypes} selectedPlacesTypes={this.state.selectedPlacesTypes}/>
+                    <WaypointChooser getWaypoints={this.getWaypoints} selectedPlacesTypes={this.state.selectedPlacesTypes} placesFunc={this.setSelectedPlacesTypes} />
+                    <UserInput submit={this.submit} waypoints={this.state.waypoints} places={this.state.places} />
+                    <Waypoints waypointsFunc={this.setWaypoints} places={this.state.places}  />
                 </Col>
                 <Col md={4}>
                     <RouteInfo routeInfo={this.state.routeInfo} />

@@ -140,14 +140,14 @@ export default class Waypoints extends Component {
 
         return (
             <React.Fragment>
-                <Row style={{ height: '200px', overflow: 'auto', whiteSpace: 'nowrap'}} className="fullWidth">
+                {/* <Row style={{ height: '200px', overflow: 'auto', whiteSpace: 'nowrap'}} className="fullWidth">
                     {SUPPORTED_PLACES_CODES.map(place_code => this.renderCheckbox(place_code))}
                 </Row>
                 <Row>
                     <Container>
                         <Button className="fullWidth" onClick={this.props.getWaypoints}>Fetch Waypoints for this area</Button>
                     </Container>
-                </Row>
+                </Row> */}
                 <Row>
                     <Form.Label>Waypoints</Form.Label>
                     <InputGroup className="mb-3 waypoint" >

@@ -5,6 +5,7 @@ import Col from 'react-bootstrap/Col';
 import Container from 'react-bootstrap/Container';
 import Button from 'react-bootstrap/Button';
 import TimePicker from 'rc-time-picker';
+import { Typeahead } from 'react-bootstrap-typeahead';
 
 import 'rc-time-picker/assets/index.css';
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -33,6 +34,8 @@ export default class UserInput extends Component {
         event.preventDefault();
         const data = new FormData(event.target);
 
+        console.log(this.typeahead.getInstance().getInput().value)
+        data.set('origin', this.typeahead.getInstance().getInput().value);
         data.set('arrival', this.refs.arrival.state.value);
         data.set('departure', this.refs.departure.state.value);
         // data.set('waypoints', this.props.waypoints.map((w) => w.name).join('|'));
@@ -57,11 +60,15 @@ export default class UserInput extends Component {
                 <Container>
                     <Form onSubmit={this.handleSubmit}>
                         <Row>
-                            <Form.Label>Startin point</Form.Label>
-                            <Form.Control defaultValue="Pałac kultury i Nauki"
+                            <Form.Label>Startin point</Form.Label>{'\u00A0'}
+                            <Typeahead
                                 id="origin"
+                                key="origin"
+                                ref={typeahead => this.typeahead = typeahead}
+                                className="fullWidth"
                                 name="origin"
-                            />
+                                options={this.props.places.map(o => { return o.Name })}
+                                placeholder='Starting location' />
                         </Row>
                         <br/>
                         <Row>
