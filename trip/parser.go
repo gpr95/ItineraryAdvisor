@@ -159,8 +159,9 @@ func ParseItineraryToGoogleRequests(placesList map[Place]TransportStatistics) []
 	return googleRequests
 }
 
-func AppendGoogleResponse(base FrontendResponse, route []maps.Route, mode []string) FrontendResponse {
+func AppendGoogleResponse(base FrontendResponse, route []maps.Route, mode []string, request GoogleCustomRouteRequest) FrontendResponse {
 	newResponse := GetCoordinatesAndInfoFromRoute(route, mode)
+	newResponse.Route[len(newResponse.Route)-1].Instruction += (" <i>" + request.Destination + "</i>")
 	// fmt.Printf("%# v", pretty.Formatter(newResponse))
 	if len(base.Route) == 0 {
 		return newResponse

@@ -58,7 +58,7 @@ func main() {
 			googleRequest := trip.ParseFrontendRequest(context.Request.PostForm)
 
 			// Run algorithm
-			path, distanceSum, durationSum, arrivalTime  := trip.FindItinerary(waypoints, source,
+			path, distanceSum, durationSum, arrivalTime := trip.FindItinerary(waypoints, source,
 				trip.ParseDateToCustomTimeString(googleRequest.DepartureTime), googleRequest.Mode)
 			distanceParsed := strconv.Itoa(distanceSum) + " m"
 			fmt.Printf("%# v", pretty.Formatter(path))
@@ -70,7 +70,7 @@ func main() {
 			// Append all rotues
 			frontendResponse := trip.FrontendResponse{}
 			for _, googleRequest := range googleRequestsList {
-				frontendResponse = trip.AppendGoogleResponse(frontendResponse, trip.Route(googleRequest), googleRequest.Mode)
+				frontendResponse = trip.AppendGoogleResponse(frontendResponse, trip.Route(googleRequest), googleRequest.Mode, googleRequest)
 			}
 			if trip.CustomTimeToMinutes(arrivalTime) > trip.CustomTimeToMinutes(trip.ParseDateToCustomTimeString(googleRequest.ArrivalTime)) {
 				frontendResponse.Distance = "Not possible"
@@ -99,4 +99,4 @@ func main() {
 }
 
 // TODO check solution If place is Open when we get there
-// TODO 
+// TODO
